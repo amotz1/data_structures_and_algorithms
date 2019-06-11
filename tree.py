@@ -1,4 +1,6 @@
-
+#[amotz] at the end it seems it is still broken...
+# i had some test that worked but i figured out a bug in my program in line 53 that i am still wasnt able to solve i think
+# so i still need to work on it but this is the current state of bussiness in the project
 count = 0
 
 
