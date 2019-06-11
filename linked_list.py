@@ -33,7 +33,7 @@ class LinkedList:
                 link = link.get_next()
         return None
 
-    def test_find_link(self, value):
+    def find_link(self, value):
         link = self._head_link
         while link is not None:
             if link.get_value() == value:
@@ -79,8 +79,8 @@ class LinkedList:
         for i in new_itterator:
             print(i)
 
-    def add_link_after(self, link_to_add, link_to_find):
-        link_to_find = self._find_link(link_to_find)
+    def add_link_after(self, link_to_add, value):
+        link_to_find = self._find_link(value)
         if link_to_find == self._last_link:
             new_link = _Link(link_to_add)
             self._last_link.set_next(new_link)
@@ -91,7 +91,7 @@ class LinkedList:
             link_to_find.set_next(new_link)
 
 
-class _Counter:
+class _LinkedListIterator:
     def __init__(self, current):
         self._current = current
 
@@ -114,11 +114,11 @@ def test_Linked_List():
     my_list.add_link_at_end("Amotz")
     my_list.add_link_at_end("Anat")
     my_list.add_link_at_start("hillel")
-    assert my_list.test_find_link("Amotz")
+    assert my_list.find_link("Amotz")
     my_list.remove("Amotz")
-    assert not my_list.test_find_link("Amotz")
+    assert not my_list.find_link("Amotz")
     my_list.add_link_after("Asaf", "Anat")
-    new_itterator = _Counter(my_list._head_link)
+    new_itterator = _LinkedListIterator(my_list._head_link)
     assert new_itterator.__next__() == "hillel"
     assert new_itterator.__next__() == "Yotam"
     assert new_itterator.__next__() == "Anat"
