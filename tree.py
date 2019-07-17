@@ -145,39 +145,40 @@ class BinaryTree:
 #    class _TreeIterator:
 
 
-# def test_Binary_Tree():
-#     my_tree = BinaryTree()
-#     my_tree.add_node(35)
-#     my_tree.add_node(24)
-#     my_tree.add_node(56)
-#     my_tree.add_node(76)
-#     my_tree.add_node(11)
-#     my_tree.add_node(29)
-#     my_tree.add_node(38)
-#     my_tree.add_node(25)
-#     my_tree.add_node(31)
-#     my_tree.add_node(34)
-#     my_tree.add_node(9)
-#     my_tree.traverse()
-#     my_tree.check_invariant()
-#
-#     assert my_tree.find(38)  # testing find method on a value that is in the list
-#     assert not my_tree.find(115)  # testing find method on a value that is not in the list
-#     my_tree.remove(76)
-#     my_tree.check_invariant()
-#     my_tree.remove(56)
-#     my_tree.check_invariant()
-#     assert not my_tree.find(76)  # testing removing a node without children
-#     assert not my_tree.find(56)  # testing removing a node with one left child
-#     my_tree.remove(24)
-#     my_tree.check_invariant()
-#     assert not my_tree.find(24)  # testing removing a node with two children
-#     my_tree.remove(29)
-#     my_tree.check_invariant()
-#     assert not my_tree.find(29)  # testing removing a node with one right child
-#
-#     # testing that all the right connections are still in place in the my_tree
-#     my_tree.check_invariant()
+def test_Binary_Tree():
+    my_tree = BinaryTree()
+    my_tree.add_node(35)
+    my_tree.add_node(24)
+    my_tree.add_node(56)
+    my_tree.add_node(76)
+    my_tree.add_node(11)
+    my_tree.add_node(29)
+    my_tree.add_node(38)
+    my_tree.add_node(25)
+    my_tree.add_node(31)
+    my_tree.add_node(34)
+    my_tree.add_node(9)
+    my_tree.traverse()
+    my_tree.check_invariant()
+
+    assert my_tree.find(38)  # testing find method on a value that is in the list
+    assert not my_tree.find(115)  # testing find method on a value that is not in the list
+    my_tree.remove(76)
+    my_tree.check_invariant()
+    my_tree.remove(56)
+    my_tree.check_invariant()
+    assert not my_tree.find(76)  # testing removing a node without children
+    assert not my_tree.find(56)  # testing removing a node with one left child
+    my_tree.remove(24)
+    my_tree.check_invariant()
+    assert not my_tree.find(24)  # testing removing a node with two children
+    my_tree.remove(29)
+    my_tree.check_invariant()
+    assert not my_tree.find(29)  # testing removing a node with one right child
+
+    # testing that all the right connections are still in place in the my_tree
+    my_tree.check_invariant()
+
 
 def big_tree():
     my_tree = BinaryTree()
@@ -195,6 +196,7 @@ def big_tree():
         assert not my_tree.find(i)
 
 
+test_Binary_Tree()
 big_tree()
 
 #    print(my_tree.tree_size)
