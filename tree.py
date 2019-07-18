@@ -47,6 +47,11 @@ class BinaryTree:
         else:
             return self._right_subtree_successor(node.left)
 
+# removing the first node with the specified value that it finds
+
+    def remove(self, value):
+        self.root_node = self._remove(self.root_node, value)
+
     def _remove(self, current_node, value):
         if value > current_node.value:
             current_node.right = self._remove(current_node.right, value)
@@ -74,30 +79,46 @@ class BinaryTree:
                 current_node.value = temp_value
                 return current_node
 
-    def remove(self, value):
-        self.root_node = self._remove(self.root_node, value)
+    def is_empty(self):
+        if self.root_node is None:
+            return True
+        else:
+            return False
+
+    # assert that left child value is lower then the parent value
+    # and that right child value is bigger then the parent value
+
+    def check_invariant(self):
+        self._check_invariant(self.root_node)
 
     def _check_invariant(self, current):
-        if current is not None:
+        if current is None:
+            return
+        else:
             if current.left is None and current.right is not None:
-                assert current.right.value > current.value
+                assert current.right.value > current.value, ('failed on: %d > %d' %
+                                                             (current.right.value, current.value))
                 self._check_invariant(current.left)
                 self._check_invariant(current.right)
             elif current.right is None and current.left is not None:
-                assert current.left.value <= current.value
+                assert current.left.value <= current.value, ('failed on: %d <= %d' %
+                                                             (current.left.value, current.value))
                 self._check_invariant(current.left)
                 self._check_invariant(current.right)
             elif current.right is not None and current.left is not None:
-                assert current.right.value > current.value
-                assert current.left.value <= current.value
+                assert current.right.value > current.value, ('failed on: %d > %d' %
+                                                             (current.right.value, current.value))
+                assert current.left.value <= current.value, ('failed on: %d <= %d' %
+                                                             (current.left.value, current.value))
                 self._check_invariant(current.left)
                 self._check_invariant(current.right)
             else:
                 self._check_invariant(current.left)
                 self._check_invariant(current.right)
 
-    def check_invariant(self):
-        self._check_invariant(self.root_node)
+    def traverse(self):
+        print("the root node is ", self.root_node.value)
+        self._traverse(self.root_node)
 
     def _traverse(self, current):
         if current is not None:
@@ -118,13 +139,11 @@ class BinaryTree:
                 self._traverse(current.left)
                 self._traverse(current.right)
 
-    def traverse(self):
-        print("the root node is ", self.root_node.value)
-        self._traverse(self.root_node)
 
-
-# [amotz] until now its all tested from here it is fragmented code that is not working and not worth reading yet,
-# its the beginning of the iterator but i am still working on it, planning to do it and i am not sure how yet.
+# [amotz] until now its all tested from here it is
+# fragmented code that is not working and not worth reading yet,
+# its the beginning of the iterator but i am still working on it,
+# planning to do it and i am not sure how yet.
 
 #    def tree_size(self, current_node):
 #        if current_node == null:
@@ -160,44 +179,63 @@ def test_Binary_Tree():
     my_tree.add_node(9)
     my_tree.traverse()
     my_tree.check_invariant()
-
-    assert my_tree.find(38)  # testing find method on a value that is in the list
-    assert not my_tree.find(115)  # testing find method on a value that is not in the list
+    # testing find method on a value that is in the list
+    assert my_tree.find(38), 'failed finding the number'
+    # testing find method on a value that is not in the list
     my_tree.remove(76)
+    assert not my_tree.find(115), 'failed: found a number that is not in the tree'
     my_tree.check_invariant()
     my_tree.remove(56)
     my_tree.check_invariant()
-    assert not my_tree.find(76)  # testing removing a node without children
-    assert not my_tree.find(56)  # testing removing a node with one left child
+    # testing removing a node without children
+    assert not my_tree.find(76), ('failed: found a number that is not in the tree'
+                                  'so remove function is not working properly')
+    # testing removing a node with one left child
+    assert not my_tree.find(56), ('failed: found a number that is not in the tree '
+                                  'so remove function is not working properly')
     my_tree.remove(24)
     my_tree.check_invariant()
-    assert not my_tree.find(24)  # testing removing a node with two children
+    # testing removing a node with two children
+    assert not my_tree.find(24), ('failed: found a number that is not in the tree '
+                                  'so remove function is not working properly')
     my_tree.remove(29)
     my_tree.check_invariant()
-    assert not my_tree.find(29)  # testing removing a node with one right child
+    # testing removing a node with one right child
+    assert not my_tree.find(29), ('failed: found a number that is not in the tree '
+                                  'so remove function is not working properly')
 
     # testing that all the right connections are still in place in the my_tree
     my_tree.check_invariant()
 
 
-def big_tree():
+def test_big_tree():
     my_tree = BinaryTree()
     my_list = []
-    for i in range(100):
-        random_number = random.randrange(20000)
+    max_element_value = 200
+
+    # the below code first produce a big tree and then test if the left child value is smaller then the parent value
+    # and the right child is bigger then the parent value in all the nodes in the tree, and then proceed to check
+    # the find method and the remove method
+
+    for i in range(max_element_value):
+        random_number = random.randrange(50000)
         my_list.append(random_number)
         my_tree.add_node(random_number)
-        my_tree.find(random_number)
+        assert my_tree.find(random_number), 'failed: didnt find a number that is in the tree'
         my_tree.check_invariant()
     for i in my_list:
-        assert my_tree.find(i)
+        assert my_tree.find(i), 'failed: didnt find a number that is in the tree'
+    for i in my_list:
         while my_tree.find(i) is True:
             my_tree.remove(i)
-        assert not my_tree.find(i)
+        assert not my_tree.find(i), ('failed: found a number that is not in the tree '
+                                     'so remove function is not working properly')
+    assert my_tree.is_empty(), ('failed: the tree is not empty so the remove function '
+                                'did not remove all elements so it doesnt function properly')
 
 
 test_Binary_Tree()
-big_tree()
+test_big_tree()
 
 #    print(my_tree.tree_size)
 
