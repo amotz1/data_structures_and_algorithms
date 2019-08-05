@@ -25,7 +25,7 @@ class LinkedList:
     def is_empty(self):
         return self._head_link is None
 
-    def _find_link(self, value: str) -> bool:
+    def _find_link(self, value):
         link = self._head_link
         while link is not None:
             if link.get_value() == value:
@@ -34,7 +34,7 @@ class LinkedList:
                 link = link.get_next()
         return None
 
-    def find_link(self, value):
+    def find_link(self, value: str) -> bool:
         return self._find_link(value)
 
     def add_link_at_start(self, value):
