@@ -1,6 +1,7 @@
 # [amotz]
 # this hashtable implementation have a class with two methods put and get.
-# the put method can have integer and string as keys and put them according to the hash function in an array.
+# the put method can have integer and string as keys
+# it puts them according to the hash function compute_list_index in an array.
 # the get method can search the value that i put in the array and return it.
 
 # the put method cannot take objects yet
