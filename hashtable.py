@@ -5,7 +5,7 @@
 # the get method can search the value that i put in the list and return it.
 
 # the put method cannot take objects yet
-# the hashtable does not implement collisions remove method and automatically resizing array yet
+# the hashtable does not implement collisions remove method and automatically resizing list yet
 # the hashtable may break for certain keys for sure, and my tests are using keys that will not break the program.
 
 
