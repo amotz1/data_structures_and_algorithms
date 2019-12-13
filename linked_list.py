@@ -2,6 +2,7 @@
 
 DEVELOPMENT_MODE = True
 
+
 class _Link:
     def __init__(self, value):
         self.value = value
@@ -24,6 +25,12 @@ class LinkedList:
 
     def is_empty(self):
         return self._head_link is None
+
+    def get_head_link(self):
+        return self._head_link.value
+
+    def get_last_link(self):
+        return self._last_link.value
 
     def _find_link(self, value):
         link = self._head_link
@@ -88,6 +95,14 @@ class LinkedList:
             return link_to_find.value
         else:
             return None
+
+    def size(self):
+        count_links = 0
+        link = self._head_link
+        while link is not None:
+            link = link.get_next()
+            count_links += 1
+        return count_links
 
     def check_invariant(self):
         if self._head_link is None:
@@ -156,6 +171,7 @@ def test_Linked_List():
     assert my_iterator.__next__() == "Asaf"
     for i in my_list:
         print(i)
+    assert my_list.size() == 4
 
 
 test_Linked_List()
