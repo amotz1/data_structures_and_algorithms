@@ -57,7 +57,7 @@ class Hashtable:
 
     # [amotz]
     # in my hashtable_representation below
-    # i chose to use a representation of index without brackets and key value pairs with brackets
+    # i chose to use a representation of index of backing array without brackets and key value pairs with brackets
 
     def hashtable_representation(self):
         representation = []
