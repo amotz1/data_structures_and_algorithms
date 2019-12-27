@@ -2,9 +2,10 @@ import linked_list
 
 
 # [amotz]
-# hashtable partial implementation int and string are supported with only hashtable_representation and put methods
-# the hashtable support first and second collisions but not automatically growing array still no get method
-#
+# hashtable partial implementation int and string are supported
+# added get method method
+# the hashtable support first and second collisions but not automatically growing array
+
 def compute_hash_code(key):
     if type(key) == str:
         list_of_ascii_code_chars = [ord(c) for c in key]  # computing the unicode of chars and putting them in a list
@@ -35,7 +36,7 @@ class KeyValuePair:
 class Hashtable:
 
     def __init__(self):
-        self.backing_array = [None]*10
+        self.backing_array = [None] * 10
 
     def put(self, key, value):
         hash_code = compute_hash_code(key)
@@ -52,6 +53,18 @@ class Hashtable:
         else:
             hashtable_element = KeyValuePair(key, value)
             self.backing_array[index].add_link_at_end(hashtable_element)
+
+    def get(self, key):
+        hash_code = compute_hash_code(key)
+        index = hash_code % len(self.backing_array)
+        if type(self.backing_array[index]) == KeyValuePair:
+            return self.backing_array[index].value
+        elif type(self.backing_array[index]) == linked_list.LinkedList:
+            for linked_list_index in self.backing_array[index]:
+                if linked_list_index.key == key:
+                    return linked_list_index.value
+        else:
+            return None
 
     # [amotz]
     # in my hashtable_representation below
@@ -74,15 +87,21 @@ class Hashtable:
 
 def test_Hashtable():
     amotz_hashtable = Hashtable()
-    # putting a value in a key that is int that is not in the hashtable-testing support for int
+    # putting a value in a key that is int that is not in the hashtable - testing support for int
     amotz_hashtable.put(1000006, 1001)
-    # putting a value in a key that is int that is already in the hashtable- testing first collision
+    assert amotz_hashtable.get(1000006) == 1001
+    # putting a value in a key that is int that is already in the hashtable - testing first collision
     amotz_hashtable.put(1006, 142)
-    # putting another value that is int in the index 6 to have 3 elements in the 6 index - testing second collision
+    assert amotz_hashtable.get(1006) == 142
+    # putting another value that is int in the index 6 to have 2 elements in the 6 index - testing second collision
     amotz_hashtable.put(10000006, 35)
-    # putting a value in a key that is a string-testing support for strings
+    assert amotz_hashtable.get(10000006) == 35
+    # putting a value in a key that is a string - testing support for strings
     amotz_hashtable.put('amotz', 30)
-    # testing that every element is put in the right places of the hashtable
+    assert amotz_hashtable.get('amotz') == 30
+    # testing a number that is not in the hashtable
+    assert amotz_hashtable.get(400) is None
+    # testing hashtable_representation method
     assert amotz_hashtable.hashtable_representation() == [0, 1, 2, 3, 4, 5, ['amotz', 30],
                                                           6, [1000006, 1001], [1006, 142], [10000006, 35],
                                                           7, 8, 9]
@@ -119,18 +138,7 @@ test_Hashtable()
 
 # from here it is the rest of the code that i still need to clean
 # --------------------------------------------------------------------------------------------------
-#     def get(self, key):
-#         hash_code = compute_hash_code(key)
-#         index = hash_code % len(self.backing_array)
-#         if self.backing_array[index] is not None:
-#             new_iterator = self.backing_array[index].__iter__()
-#             link_value = new_iterator.__next__()
-#             if link_value == key:
-#                 return self.backing_array[index].get_last_link()
-#             else:
-#                 link = self.backing_array[index].find_link(key)
-#                 next_link = link.get_next()
-#                 return next_link.get_value()
+
 #
 #     def remove(self, key):
 #         hash_code = compute_hash_code(key)
