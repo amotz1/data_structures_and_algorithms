@@ -3,8 +3,7 @@ import linked_list
 
 # [amotz]
 # hashtable partial implementation int and string are supported
-# added get method method
-# the hashtable support first and second collisions but not automatically growing array
+# the hashtable support collisions but not automatically growing array and remove method
 
 def compute_hash_code(key):
     if type(key) == str:
@@ -18,10 +17,8 @@ def compute_hash_code(key):
 
 
 def test_compute_hash_code():
-    test_case_1 = 'abc'
-    test_case_2 = 3
-    assert compute_hash_code(test_case_1) == 294
-    assert compute_hash_code(test_case_2) == 3
+    assert compute_hash_code('abc') == 294
+    assert compute_hash_code(3) == 3
 
 
 test_compute_hash_code()
@@ -45,95 +42,132 @@ class Hashtable:
             hashtable_element = KeyValuePair(key, value)
             self.backing_array[index] = hashtable_element
         elif type(self.backing_array[index]) == KeyValuePair:
-            hashtable_element = KeyValuePair(key, value)
-            b_a_linked_list = linked_list.LinkedList()
-            b_a_linked_list.add_link_at_end(self.backing_array[index])
-            b_a_linked_list.add_link_at_end(hashtable_element)
-            self.backing_array[index] = b_a_linked_list
+            if self.backing_array[index].key == key:
+                self.backing_array[index].value = value
+            else:
+                hashtable_element = KeyValuePair(key, value)
+                b_a_linked_list = linked_list.LinkedList()
+                b_a_linked_list.add_link_at_end(self.backing_array[index])
+                b_a_linked_list.add_link_at_end(hashtable_element)
+                self.backing_array[index] = b_a_linked_list
         else:
+            assert type(self.backing_array[index]) == linked_list.LinkedList
+            for i in self.backing_array[index]:
+                if i.key == key:
+                    i.value = value
             hashtable_element = KeyValuePair(key, value)
             self.backing_array[index].add_link_at_end(hashtable_element)
 
     def get(self, key):
         hash_code = compute_hash_code(key)
         index = hash_code % len(self.backing_array)
-        if type(self.backing_array[index]) == KeyValuePair:
-            return self.backing_array[index].value
-        elif type(self.backing_array[index]) == linked_list.LinkedList:
-            for linked_list_index in self.backing_array[index]:
-                if linked_list_index.key == key:
-                    return linked_list_index.value
-        else:
+        if self.backing_array[index] is None:
             return None
+        elif type(self.backing_array[index]) == KeyValuePair:
+            assert self.backing_array[index].key == key
+            return self.backing_array[index].value
+        else:
+            assert type(self.backing_array[index]) == linked_list.LinkedList
+            for i in self.backing_array[index]:
+                if i.key == key:
+                    return i.value
 
     # [amotz]
     # in my hashtable_representation below
-    # i chose to use a representation of index of backing array without brackets and key value pairs with brackets
+    # i chose to use a representation of hashtable in which
+    # the indexes  of the backing array are of type int and the key value pairs are of type python list
 
     def hashtable_representation(self):
         representation = []
         for index in range(len(self.backing_array)):
-            if type(self.backing_array[index]) == linked_list.LinkedList:
+            if self.backing_array[index] is None:
                 representation.append(index)
-                for linked_list_index in self.backing_array[index]:
-                    representation.append([linked_list_index.key, linked_list_index.value])
             elif type(self.backing_array[index]) == KeyValuePair:
                 representation.append(index)
                 representation.append([self.backing_array[index].key, self.backing_array[index].value])
             else:
+                assert type(self.backing_array[index]) == linked_list.LinkedList
                 representation.append(index)
+                for i in self.backing_array[index]:
+                    representation.append([i.key, i.value])
         return representation
 
 
 def test_Hashtable():
-    amotz_hashtable = Hashtable()
-    # putting a value in a key that is int that is not in the hashtable - testing support for int
-    amotz_hashtable.put(1000006, 1001)
-    assert amotz_hashtable.get(1000006) == 1001
-    # putting a value in a key that is int that is already in the hashtable - testing first collision
-    amotz_hashtable.put(1006, 142)
-    assert amotz_hashtable.get(1006) == 142
-    # putting another value that is int in the index 6 to have 2 elements in the 6 index - testing second collision
-    amotz_hashtable.put(10000006, 35)
-    assert amotz_hashtable.get(10000006) == 35
+    hashtable = Hashtable()
+
+    # testing that an int key is not in the hashtable
+    assert hashtable.get(1000006) is None
+
+    # putting a value in that key - testing support for int
+    hashtable.put(1000006, 1001)
+    assert hashtable.get(1000006) == 1001
+
+    # Testing a collision
+    # (the underlying array in the hashtable has 10 elements and both 1006 and 100006 mod 10 equal 6)
+    hashtable.put(1006, 142)
+    assert hashtable.get(1006) == 142
+
+    # putting another value that is int in index 6 to have 2 elements in the 6 index - testing second collision
+    hashtable.put(10000006, 35)
+    assert hashtable.get(10000006) == 35
+
+    # testing that the keys 1006 and 1000006 are still in the hashtable
+    assert hashtable.get(1000006) == 1001
+    assert hashtable.get(1006) == 142
+
+    # testing hash collision
+    assert "abc" != "acb"
+    assert compute_hash_code("abc") == compute_hash_code("acb")
+    hashtable.put('abc', 142)
+    hashtable.put('cab', 378)
+    assert hashtable.get('abc') == 142
+    assert hashtable.get('cab') == 378
+
     # putting a value in a key that is a string - testing support for strings
-    amotz_hashtable.put('amotz', 30)
-    assert amotz_hashtable.get('amotz') == 30
+    hashtable.put('amotz', 30)
+    assert hashtable.get('amotz') == 30
+
     # testing a number that is not in the hashtable
-    assert amotz_hashtable.get(400) is None
+    assert hashtable.get(400) is None
+
+    # putting a value in a key that is already in the hashtable - testing update to a key
+    hashtable.put('amotz', 45)
+    assert hashtable.get('amotz') == 45
+
     # testing hashtable_representation method
-    assert amotz_hashtable.hashtable_representation() == [0, 1, 2, 3, 4, 5, ['amotz', 30],
-                                                          6, [1000006, 1001], [1006, 142], [10000006, 35],
-                                                          7, 8, 9]
+    assert hashtable.hashtable_representation() == [0, 1, 2, 3, 4, ['abc', 142], ['cab', 378], 5, ['amotz', 45],
+                                                    6, [1000006, 1001], [1006, 142], [10000006, 35],
+                                                    7, 8, 9]
 
 
 test_Hashtable()
 
 # from here on its the rest of the code that i still need to clean and rewrite
 # ------------------------------------------------------------------------------------------------
-# assert amotz_hashtable.get(6) is None
-# assert amotz_hashtable.get(8) is None
-# assert amotz_hashtable.get(9) is None
-# assert amotz_hashtable.get(9) == 32
-# assert amotz_hashtable.get(8) is None
-# amotz_hashtable.put(8, 123)
-# assert amotz_hashtable.get(8) == 123
-# amotz_hashtable.put("amotz", 30)
-# assert amotz_hashtable.get("amotz") == 30
-# assert amotz_hashtable.get("yotam") is None
-# amotz_hashtable.put("hillel", 38)
-# assert amotz_hashtable.get("hillel") == 38
-# amotz_hashtable.put("anat", 70)
-# assert amotz_hashtable.get("anat") == 70
-# print(amotz_hashtable.Hashtable_representation())
-# amotz_hashtable.remove('anat')
-# assert amotz_hashtable.get("anat") is None
-# amotz_hashtable.remove(8)
-# assert amotz_hashtable.get(8) is None
-# print(amotz_hashtable.Hashtable_representation())
-# amotz_hashtable.remove(9)
-# print(amotz_hashtable.Hashtable_representation())
-# assert amotz_hashtable.get(299) == 765
+# assert hashtable.get(6) is None
+# assert hashtable.get(8) is None
+# assert hashtable.get(9) is None
+# assert hashtable.get(9) == 32
+# assert hashtable.get(8) is None
+# hashtable.put(8, 123)
+# assert hashtable.get(8) == 123
+# hashtable.put("amotz", 30)
+# assert hashtable.get("amotz") == 30
+# assert hashtable.get("yotam") is None
+# hashtable.put("hillel", 38)
+# assert hashtable.get("hillel") == 38
+# hashtable.put("anat", 70)
+# assert hashtable.get("anat") == 70
+# print(hashtable.Hashtable_representation())
+# hashtable.remove('anat')
+# assert hashtable.get("anat") is None
+# hashtable.remove(8)
+# assert hashtable.get(8) is None
+# print(hashtable.Hashtable_representation())
+# hashtable.remove(9)
+# print(hashtable.Hashtable_representation())
+# assert hashtable.get(299) == 765
 
 
 # from here it is the rest of the code that i still need to clean
