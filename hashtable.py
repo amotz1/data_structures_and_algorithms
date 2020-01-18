@@ -52,11 +52,16 @@ class Hashtable:
                 self.backing_array[index] = b_a_linked_list
         else:
             assert type(self.backing_array[index]) == linked_list.LinkedList
+            is_key_found = False
             for i in self.backing_array[index]:
                 if i.key == key:
+                    is_key_found = True
                     i.value = value
-            hashtable_element = KeyValuePair(key, value)
-            self.backing_array[index].add_link_at_end(hashtable_element)
+                else:
+                    pass
+            if is_key_found is False:
+                hashtable_element = KeyValuePair(key, value)
+                self.backing_array[index].add_link_at_end(hashtable_element)
 
     def get(self, key):
         hash_code = compute_hash_code(key)
@@ -64,13 +69,16 @@ class Hashtable:
         if self.backing_array[index] is None:
             return None
         elif type(self.backing_array[index]) == KeyValuePair:
-            assert self.backing_array[index].key == key
-            return self.backing_array[index].value
+            if self.backing_array[index].key == key:
+                return self.backing_array[index].value
+            else:
+                return None
         else:
             assert type(self.backing_array[index]) == linked_list.LinkedList
             for i in self.backing_array[index]:
                 if i.key == key:
                     return i.value
+            return None
 
     # [amotz]
     # in my hashtable_representation below
@@ -96,49 +104,46 @@ class Hashtable:
 def test_Hashtable():
     hashtable = Hashtable()
 
-    # testing that an int key is not in the hashtable
-    assert hashtable.get(1000006) is None
+    # testing a key that i didn't insert is not in the hashtable
+    assert hashtable.get(1) is None
 
-    # putting a value in that key - testing support for int
-    hashtable.put(1000006, 1001)
-    assert hashtable.get(1000006) == 1001
-
-    # Testing a collision
-    # (the underlying array in the hashtable has 10 elements and both 1006 and 100006 mod 10 equal 6)
-    hashtable.put(1006, 142)
-    assert hashtable.get(1006) == 142
-
-    # putting another value that is int in index 6 to have 2 elements in the 6 index - testing second collision
-    hashtable.put(10000006, 35)
-    assert hashtable.get(10000006) == 35
-
-    # testing that the keys 1006 and 1000006 are still in the hashtable
-    assert hashtable.get(1000006) == 1001
-    assert hashtable.get(1006) == 142
+    # testing basic put and get
+    hashtable.put(1, 1)
+    assert hashtable.get(1) == 1
+    # testing a different key that computes to index 1 also but is not in the hashtable
+    assert hashtable.get(11) is None
 
     # testing hash collision
     assert "abc" != "acb"
     assert compute_hash_code("abc") == compute_hash_code("acb")
-    hashtable.put('abc', 142)
-    hashtable.put('cab', 378)
-    assert hashtable.get('abc') == 142
-    assert hashtable.get('cab') == 378
+    hashtable.put('abc', 2)
+    hashtable.put('cab', 3)
+    assert hashtable.get('abc') == 2
+    assert hashtable.get('cab') == 3
+    # testing a key that computes to the same index as the keys above but is not in the hashtable
+    assert hashtable.get('bac') is None
+    # the key 'abc' and 'cab' computes to the index 4,
+    # i add another key that computes to the index 4 to test the put method
+    # when the backing array index has a linked list - test for second collision
+    hashtable.put(4, 1)
+    assert hashtable.get(4) == 1
+    # testing that putting the third key value pair in index 4 didn't change the other key value pairs in index 4
+    assert hashtable.get('abc') == 2
+    assert hashtable.get('cab') == 3
 
-    # putting a value in a key that is a string - testing support for strings
-    hashtable.put('amotz', 30)
-    assert hashtable.get('amotz') == 30
-
-    # testing a number that is not in the hashtable
-    assert hashtable.get(400) is None
-
-    # putting a value in a key that is already in the hashtable - testing update to a key
-    hashtable.put('amotz', 45)
-    assert hashtable.get('amotz') == 45
+    # putting a value in a key that is already in the hashtable and is in
+    # a KeyValuePair object that is not in a linked list
+    # testing update to a key
+    hashtable.put(1, 2)
+    assert hashtable.get(1) == 2
+    # putting a value in a key that is already in the hashtable and is in a linked list of KeyValuePair objects
+    # testing update to a key
+    hashtable.put(4, 3)
+    assert hashtable.get(4) == 3
 
     # testing hashtable_representation method
-    assert hashtable.hashtable_representation() == [0, 1, 2, 3, 4, ['abc', 142], ['cab', 378], 5, ['amotz', 45],
-                                                    6, [1000006, 1001], [1006, 142], [10000006, 35],
-                                                    7, 8, 9]
+    assert hashtable.hashtable_representation() == [0, 1, [1, 2], 2, 3, 4, ['abc', 2], ['cab', 3], [4, 3], 5,
+                                                    6, 7, 8, 9]
 
 
 test_Hashtable()
