@@ -3,7 +3,7 @@ import linked_list
 
 # [amotz]
 # hashtable partial implementation int and string are supported
-# the hashtable support collisions but not automatically growing array and remove method
+# the hashtable support collisions but not automatically growing array
 
 def compute_hash_code(key):
     if type(key) == str:
