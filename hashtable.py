@@ -137,6 +137,7 @@ class Hashtable:
                 return False
 
         else:
+            assert self.backing_array[index] is None
             return False
 
 
