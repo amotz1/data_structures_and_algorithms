@@ -202,7 +202,6 @@ def test_Hashtable():
     assert hashtable.get(1) is None
     # multiple KeyValuePairs in backing array location
     assert type(hashtable.backing_array[4]) == linked_list.LinkedList
-    print(hashtable.hashtable_representation())
     assert hashtable.remove('cab') is True
     assert hashtable.get('cab') is None
     # test that all the key value pairs in the hashtable are still in the right places
@@ -222,13 +221,11 @@ def test_Hashtable():
     assert hashtable.get(1) == "moshe"
     assert hashtable.remove(44) is False
     assert hashtable.get(4) == 3
-    print(hashtable.hashtable_representation())
     hashtable.put(11, 'menashe')
     assert hashtable.remove(4) is True
     assert type(hashtable.backing_array[4]) == KeyValuePair
     assert hashtable.remove('abc') is True
     assert hashtable.backing_array[4] is None
-    print(hashtable.hashtable_representation())
     assert hashtable.remove(1) is True
     assert type(hashtable.backing_array[1]) == KeyValuePair
     assert hashtable.remove(11) is True
