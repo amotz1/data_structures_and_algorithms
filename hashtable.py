@@ -220,7 +220,6 @@ def test_Hashtable():
     assert hashtable.get(4) == 3
     hashtable.put(11, 'menashe')
     # assert len(hashtable.backing_array) == 20
-    print(hashtable.hashtable_representation())
     assert hashtable.remove(4)
     # assert len(hashtable.backing_array) == 10
     assert type(hashtable.backing_array[4]) == KeyValuePair
