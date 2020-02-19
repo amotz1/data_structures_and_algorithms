@@ -52,6 +52,7 @@ class Hashtable:
                 self.backing_array[index] = b_a_linked_list
         else:
             assert type(self.backing_array[index]) == linked_list.LinkedList
+            assert self.backing_array[index].size() >= 2
             is_key_found = False
             for i in self.backing_array[index]:
                 if i.key == key:
@@ -73,6 +74,7 @@ class Hashtable:
                 return None
         else:
             assert type(self.backing_array[index]) == linked_list.LinkedList
+            assert self.backing_array[index].size() >= 2
             for i in self.backing_array[index]:
                 if i.key == key:
                     return i.value
@@ -94,11 +96,13 @@ class Hashtable:
                 representation.append([self.backing_array[index].key, self.backing_array[index].value])
             else:
                 assert type(self.backing_array[index]) == linked_list.LinkedList
+                assert self.backing_array[index].size() >= 2
                 representation.append(index)
                 for i in self.backing_array[index]:
                     representation.append([i.key, i.value])
         return representation
 
+    # returns true if the key was removed and false otherwise
     def remove(self, key):
         hash_code = compute_hash_code(key)
         index = hash_code % len(self.backing_array)
@@ -109,33 +113,23 @@ class Hashtable:
             else:
                 return False
         elif type(self.backing_array[index]) == linked_list.LinkedList:
-            if self.backing_array[index].size() != 2:
+            assert self.backing_array[index].size() >= 2
+            if self.backing_array[index].size() > 2:
                 for i in self.backing_array[index]:
                     if i.key == key:
                         self.backing_array[index].remove(i)
                         return True
                 return False
             else:
-                key_found_node_number = 0
                 for i in self.backing_array[index]:
-                    key_found_node_number = key_found_node_number + 1
                     if i.key == key:
-                        if key_found_node_number == 1:
-                            key = self.backing_array[index].get_last_link().key
-                            value = self.backing_array[index].get_last_link().value
-                            hashtable_element = KeyValuePair(key, value)
-                            self.backing_array[index] = hashtable_element
-                            return True
-                        else:
-                            assert key_found_node_number == 2
-                            key = self.backing_array[index].get_head_link().key
-                            value = self.backing_array[index].get_head_link().value
-                            hashtable_element = KeyValuePair(key, value)
-                            self.backing_array[index] = hashtable_element
-                            return True
-                assert i.key != key
+                        self.backing_array[index].remove(i)
+                        key = self.backing_array[index].get_head_link().key
+                        value = self.backing_array[index].get_head_link().value
+                        hashtable_element = KeyValuePair(key, value)
+                        self.backing_array[index] = hashtable_element
+                        return True
                 return False
-
         else:
             assert self.backing_array[index] is None
             return False
@@ -163,7 +157,7 @@ def test_Hashtable():
     hashtable.put('cab', 3)
     assert hashtable.get('abc') == 2
     assert hashtable.get('cab') == 3
-    # testing a key that will be stored in the same bucket as the keys above but is not in the hashtable
+    # testing a key that will  be stored in the same bucket as the keys above but is not in the hashtable
     # (this time the bucket contains a linked list)
     assert type(hashtable.backing_array[4]) == linked_list.LinkedList
     assert hashtable.get('bac') is None
@@ -173,6 +167,7 @@ def test_Hashtable():
     # i add another key that will be stored in the same bucket as 'abc and 'bac' to test the put method
     # when the backing array bucket has a linked list - test for second collision
     hashtable.put(4, 1)
+    # assert len(hashtable.backing_array) == 20
     assert hashtable.get(4) == 1
     # testing that putting the third key value pair in the same bucket didn't
     # change the other key value pairs in the bucket of index 4
@@ -199,16 +194,17 @@ def test_Hashtable():
 
     # single KeyValuePair in backing array location
     assert type(hashtable.backing_array[1]) == KeyValuePair
-    assert hashtable.remove(1) is True
+    assert hashtable.remove(1)
+    # assert len(hashtable.backing_array) == 10
     assert hashtable.get(1) is None
     # multiple KeyValuePairs in backing array location
     assert type(hashtable.backing_array[4]) == linked_list.LinkedList
-    assert hashtable.remove('cab') is True
+    assert hashtable.remove('cab')
     assert hashtable.get('cab') is None
     # test that all the key value pairs in the hashtable are still in the right places
     assert hashtable.hashtable_representation() == [0, 1, 2, 3, 4, ['abc', 2], [4, 3], 5,
                                                     6, 7, 8, 9]
-    assert hashtable.remove(2) is False
+    assert not hashtable.remove(2)
     # test of removing a key that is not in the hashtable
     assert hashtable.get(2) is None
     # test that all the key value pairs in the hashtable are still in the right places
@@ -218,18 +214,21 @@ def test_Hashtable():
     # adding two keys in one bucket and then two other keys in a different bucket
     # removing them with different order of removal each time to check consistent types of objects
     hashtable.put(1, "moshe")
-    assert hashtable.remove(11) is False
+    assert not hashtable.remove(11)
     assert hashtable.get(1) == "moshe"
-    assert hashtable.remove(44) is False
+    assert not hashtable.remove(44)
     assert hashtable.get(4) == 3
     hashtable.put(11, 'menashe')
-    assert hashtable.remove(4) is True
+    # assert len(hashtable.backing_array) == 20
+    print(hashtable.hashtable_representation())
+    assert hashtable.remove(4)
+    # assert len(hashtable.backing_array) == 10
     assert type(hashtable.backing_array[4]) == KeyValuePair
-    assert hashtable.remove('abc') is True
+    assert hashtable.remove('abc')
     assert hashtable.backing_array[4] is None
-    assert hashtable.remove(1) is True
+    assert hashtable.remove(1)
     assert type(hashtable.backing_array[1]) == KeyValuePair
-    assert hashtable.remove(11) is True
+    assert hashtable.remove(11)
     assert hashtable.backing_array[1] is None
 
 
