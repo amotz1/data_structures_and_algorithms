@@ -61,6 +61,7 @@ class Hashtable:
             if not is_key_found:
                 hashtable_element = KeyValuePair(key, value)
                 self.backing_array[index].add_link_at_end(hashtable_element)
+        # if self.size() > 0.3 * len(self.backing_array):
 
     def get(self, key):
         hash_code = compute_hash_code(key)
@@ -133,6 +134,20 @@ class Hashtable:
         else:
             assert self.backing_array[index] is None
             return False
+
+    def size(self):
+        size = 0
+        for index in range(len(self.backing_array)):
+            if self.backing_array[index] is None:
+                pass
+            elif type(self.backing_array[index]) == KeyValuePair:
+                size += 1
+            else:
+                assert type(self.backing_array[index]) == linked_list.LinkedList
+                assert self.backing_array[index].size() >= 2
+                for i in range(self.backing_array[index].size()):
+                    size += 1
+        return size
 
 
 def test_Hashtable():
@@ -221,6 +236,9 @@ def test_Hashtable():
     hashtable.put(11, 'menashe')
     # assert len(hashtable.backing_array) == 20
     assert hashtable.remove(4)
+    # checking the size method on hashtable in which some buckets are empty, one bucket contain linked list object
+    # and one bucket contain KeyValuePair object-full coverage of the method
+    assert hashtable.size() == 3
     # assert len(hashtable.backing_array) == 10
     assert type(hashtable.backing_array[4]) == KeyValuePair
     assert hashtable.remove('abc')
@@ -229,10 +247,6 @@ def test_Hashtable():
     assert type(hashtable.backing_array[1]) == KeyValuePair
     assert hashtable.remove(11)
     assert hashtable.backing_array[1] is None
-
-
-
-
 
 
 test_Hashtable()
