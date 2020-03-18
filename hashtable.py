@@ -32,7 +32,8 @@ def generate_random_number():
 
 
 def generate_random_string():
-    # the line below create 100 random characters join them up and putting the result in string1
+    # the line below create 100 random characters and join them up.
+    # then it is putting the result in string1
     string1 = ''.join(random.choice(string.ascii_lowercase) for x in range(100))
     return string1
 
@@ -309,7 +310,8 @@ test_Hashtable()
 def create_hash_and_dict():
     hash1 = Hashtable()
     py_dict = {}
-    for i in range(100000):
+    CONST = 100000
+    for i in range(CONST):
         rand_num = generate_random_number()
         rand_num_1 = generate_random_number()
         rand_str = generate_random_string()
@@ -322,16 +324,20 @@ def create_hash_and_dict():
 
 
 def compare_hash_and_dict(hash1, py_dict):
-        for index in range(len(hash1.backing_array)):
-            if hash1.backing_array[index] is None:
-                pass
-            elif type(hash1.backing_array[index]) == KeyValuePair:
-                assert hash1.backing_array[index].value == py_dict[hash1.backing_array[index].key]
-            else:
-                assert type(hash1.backing_array[index]) == linked_list.LinkedList
-                assert hash1.backing_array[index].size() >= 2
-                for i in hash1.backing_array[index]:
-                    assert i.value == py_dict[i.key]
+    # checking that every key value pair in hash1 is also in py_dict
+    for i in range(len(hash1.backing_array)):
+        if hash1.backing_array[i] is None:
+            pass
+        elif type(hash1.backing_array[i]) == KeyValuePair:
+            assert hash1.backing_array[i].value == py_dict[hash1.backing_array[i].key]
+        else:
+            assert type(hash1.backing_array[i]) == linked_list.LinkedList
+            assert hash1.backing_array[i].size() >= 2
+            for ii in hash1.backing_array[i]:
+                assert ii.value == py_dict[ii.key]
+    # checking that every key value pair in py_dict is also in hash1
+    for key in py_dict:
+        assert py_dict[key] == hash1.get(key)
 
 
 def test_big_hashtable():
