@@ -310,7 +310,7 @@ test_Hashtable()
 def create_hash_and_dict():
     hash1 = Hashtable()
     py_dict = {}
-    CONST = 100000
+    CONST = 1000
     for i in range(CONST):
         rand_num = generate_random_number()
         rand_num_1 = generate_random_number()
@@ -341,8 +341,10 @@ def compare_hash_and_dict(hash1, py_dict):
 
 
 def test_big_hashtable():
+    print("test_big_hashtable in..")
     hash1, py_dict = create_hash_and_dict()
     compare_hash_and_dict(hash1, py_dict)
+    print("test_big_hashtable out.")
 
 
 test_big_hashtable()
