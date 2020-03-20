@@ -212,8 +212,8 @@ class Hashtable:
 # the backing array and crash, who knows...).
 #
 # ([aviv]: I'm no Python expert, but it looks like Python dictionaries support iterating over just the keys or over
-# (key, value) pairs. This just supports one of those, and it may be the case that it will look like a real Python
-# programmer.
+# (key, value) pairs. This just supports one of those, and it may be the case that it will look amateurish to a real
+# Python programmer.
 class HashtableIterator:
     hash = None
     index = 0
@@ -384,15 +384,18 @@ def test_iterator():
     hashtable.put(2, "b")
     hashtable.put(22, "bb")
     hashtable.put(3, "c")
+    assert (hashtable.size() == 4)
 
     for i in range(0, 20):
         hashtable.put(generate_random_string(), generate_random_string())
+    assert (hashtable.size() == 24)
 
     py_dict = {}
     for keyValue in hashtable:
         py_dict[keyValue.key] = keyValue.value
 
-    assert len(py_dict) == 20 + 4, 'len(py_dict) == {}'.format(len(py_dict))
+    assert len(py_dict) == hashtable.size() == 24, \
+        'len(py_dict) == {}, hashtable.size() == {}'.format(len(py_dict), hashtable.size())
     assert py_dict.get(1, "a")
     assert py_dict.get(2, "b")
     assert py_dict.get(22, "bb")
