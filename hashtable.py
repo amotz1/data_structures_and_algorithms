@@ -307,6 +307,26 @@ def test_Hashtable():
 test_Hashtable()
 
 
+def test_iterator():
+    hash = Hashtable()
+    hash.put(1, "a")
+    hash.put(2, "b")
+    hash.put(11, "aa")
+
+    py_dict = {}
+    for k, v in hash:
+        py_dict.put(k, v)
+
+    assert py_dict.len() == 3
+    assert py_dict.get(1, "a")
+    assert py_dict.get(11, "aa")
+    assert py_dict.get(2, "b")
+
+
+# TODO(aviv): Implement and make pass.
+# test_iterator()
+
+
 def create_hash_and_dict():
     hash1 = Hashtable()
     py_dict = {}
