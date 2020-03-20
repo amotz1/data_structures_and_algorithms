@@ -7,6 +7,8 @@ import string
 # hashtable partial implementation int and string are supported
 # the hashtable support collisions but automatically growing array but still not shrinking of the array
 
+# TODO: Use the new HashtableIterator in the code.
+
 def compute_hash_code(key):
     if type(key) == str:
         list_of_ascii_code_chars = [ord(c) for c in key]  # computing the unicode of chars and putting them in a list
@@ -198,6 +200,69 @@ class Hashtable:
 
     # TODO fix the bug of the shrinking code that is now commented
 
+    def __iter__(self):
+        return HashtableIterator(self)
+
+
+# Iterates over the KeyValuePair objects.
+#
+# Note that if you start iterating over a Hashtable, make modifications to that Hashtable (such as a put or a remove),
+# and then continue iterating, strange things could happen and we make no guarantees (the iteration may or may not
+# include a newly added KeyValuePair, we may have resized the hashtable and you might get repeats, we may have downsized
+# the backing array and crash, who knows...).
+#
+# ([aviv]: I'm no Python expert, but it looks like Python dictionaries support iterating over just the keys or over
+# (key, value) pairs. This just supports one of those, and it may be the case that it will look like a real Python
+# programmer.
+class HashtableIterator:
+    hash = None
+    index = 0
+    list_iter = None
+    current = None
+
+    # [aviv] It may be that a real Python programmer would know to hint that some of these are private by using "__",
+    # or something like that. Sorry :(
+    def advance(self):
+        if self.list_iter is not None:
+            try:
+                self.current = next(self.list_iter)
+            except StopIteration:
+                self.list_iter = None
+                self.current = None
+                self.advance()
+        else:
+            while self.index < len(self.hash.backing_array):
+                element = self.hash.backing_array[self.index]
+                if element is None:
+                    # An empty spot in the backing array, keep going..
+                    self.index = self.index + 1
+                    continue
+                elif isinstance(element, KeyValuePair):
+                    self.index = self.index + 1
+                    self.current = element
+                    return
+                else:
+                    assert isinstance(element, linked_list.LinkedList)
+                    assert element.size() >= 1, "This code relies on not having an empty list in the backing array"
+                    self.index = self.index + 1
+                    self.list_iter = iter(element)
+                    # Call advance to get current from the list iterator we just found.
+                    self.advance()
+                    return
+            self.current = None
+
+    def __init__(self, hash):
+        self.hash = hash
+        self.advance()
+
+    def __next__(self):
+        if self.current is None:
+            raise StopIteration
+        else:
+            out = self.current
+            self.advance()
+            return out
+
 
 def test_Hashtable():
     hashtable = Hashtable()
@@ -308,23 +373,33 @@ test_Hashtable()
 
 
 def test_iterator():
-    hash = Hashtable()
-    hash.put(1, "a")
-    hash.put(2, "b")
-    hash.put(11, "aa")
+    # Test with a hashtable that has
+    # [1]: a regular backing array element containing a simple KeyValuePair
+    # [2]: a backing array element containing a LinkedList
+    # [3]: another regular backing array element containing a simple KeyValuePair to make sure that we keep iterating
+    #      over the array after we've finished iterating over the list.
+    # And another 20 random values (for good measure :)
+    hashtable = Hashtable()
+    hashtable.put(1, "a")
+    hashtable.put(2, "b")
+    hashtable.put(22, "bb")
+    hashtable.put(3, "c")
+
+    for i in range(0, 20):
+        hashtable.put(generate_random_string(), generate_random_string())
 
     py_dict = {}
-    for k, v in hash:
-        py_dict.put(k, v)
+    for keyValue in hashtable:
+        py_dict[keyValue.key] = keyValue.value
 
-    assert py_dict.len() == 3
+    assert len(py_dict) == 20 + 4, 'len(py_dict) == {}'.format(len(py_dict))
     assert py_dict.get(1, "a")
-    assert py_dict.get(11, "aa")
     assert py_dict.get(2, "b")
+    assert py_dict.get(22, "bb")
+    assert py_dict.get(3, "c")
 
 
-# TODO(aviv): Implement and make pass.
-# test_iterator()
+test_iterator()
 
 
 def create_hash_and_dict():
@@ -345,16 +420,12 @@ def create_hash_and_dict():
 
 def compare_hash_and_dict(hash1, py_dict):
     # checking that every key value pair in hash1 is also in py_dict
-    for i in range(len(hash1.backing_array)):
-        if hash1.backing_array[i] is None:
-            pass
-        elif type(hash1.backing_array[i]) == KeyValuePair:
-            assert hash1.backing_array[i].value == py_dict[hash1.backing_array[i].key]
-        else:
-            assert type(hash1.backing_array[i]) == linked_list.LinkedList
-            assert hash1.backing_array[i].size() >= 2
-            for ii in hash1.backing_array[i]:
-                assert ii.value == py_dict[ii.key]
+    for keyValue in hash1:
+        assert isinstance(keyValue, KeyValuePair)
+        assert hash1.get(
+            keyValue.key) == keyValue.value  # A gratuitous check to verify that our iterator works correctly.
+        assert py_dict[keyValue.key] == hash1.get(keyValue.key)
+
     # checking that every key value pair in py_dict is also in hash1
     for key in py_dict:
         assert py_dict[key] == hash1.get(key)
