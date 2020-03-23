@@ -388,7 +388,10 @@ def test_iterator():
     hashtable.put(2, "b")
     hashtable.put(22, "bb")
     hashtable.put(3, "c")
-    assert (hashtable.size() == 4)
+    assert hashtable.size() == 4
+    assert isinstance(hashtable.backing_array[1], KeyValuePair)
+    assert isinstance(hashtable.backing_array[2], linked_list.LinkedList)
+    assert isinstance(hashtable.backing_array[3], KeyValuePair)
 
     py_dict = {}
     for keyValue in hashtable:
