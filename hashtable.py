@@ -364,23 +364,26 @@ def test_iterator():
     # [2]: a backing array element containing a LinkedList
     # [3]: another regular backing array element containing a simple KeyValuePair to make sure that we keep iterating
     #      over the array after we've finished iterating over the list.
-    # And another 20 random values (for good measure :)
+    #
+    # Note that we expect that the Hashtable might choose to grow backing_array. In case it does, then what we intented
+    # to be in a LinkedList might get spread out over other backing_array cells, and so we choose 22, not 12, for the
+    # collision (this will still be collision in case the backing array is doubled to size 20), and we don't add
+    # anything else as doing so could turn what we intended to be single cells into LinkedLists.
     hashtable = Hashtable()
     hashtable.put(1, "a")
     hashtable.put(2, "b")
     hashtable.put(22, "bb")
     hashtable.put(3, "c")
-    assert (hashtable.size() == 4)
-
-    for i in range(0, 20):
-        hashtable.put(generate_random_string(), generate_random_string())
-    assert (hashtable.size() == 24)
+    assert hashtable.size() == 4
+    assert isinstance(hashtable.backing_array[1], KeyValuePair)
+    assert isinstance(hashtable.backing_array[2], linked_list.LinkedList)
+    assert isinstance(hashtable.backing_array[3], KeyValuePair)
 
     py_dict = {}
     for keyValue in hashtable:
         py_dict[keyValue.key] = keyValue.value
 
-    assert len(py_dict) == hashtable.size() == 24, \
+    assert len(py_dict) == hashtable.size() == 4, \
         'len(py_dict) == {}, hashtable.size() == {}'.format(len(py_dict), hashtable.size())
     assert py_dict.get(1, "a")
     assert py_dict.get(2, "b")
