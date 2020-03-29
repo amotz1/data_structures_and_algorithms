@@ -203,13 +203,25 @@ class Hashtable:
 # (key, value) pairs. This just supports one of those, and it may be the case that it will look amateurish to a real
 # Python programmer.
 class HashtableIterator:
-    hash = None
-    index = 0
-    list_iter = None
-    current = None
 
-    # [aviv] It may be that a real Python programmer would know to hint that some of these are private by using "__",
-    # or something like that. Sorry :(
+    def __init__(self, hash):
+        # [aviv] It may be that a real Python programmer would know to hint that these members (variables and methods)
+        # are private by using "__", or something like that. Sorry :(
+
+        self.hash = hash
+        self.index = 0
+        self.list_iter = None
+        self.current = None
+        self.advance()
+
+    def __next__(self):
+        if self.current is None:
+            raise StopIteration
+        else:
+            out = self.current
+            self.advance()
+            return out
+
     def advance(self):
         if self.list_iter is not None:
             try:
@@ -238,18 +250,6 @@ class HashtableIterator:
                     self.advance()
                     return
             self.current = None
-
-    def __init__(self, hash):
-        self.hash = hash
-        self.advance()
-
-    def __next__(self):
-        if self.current is None:
-            raise StopIteration
-        else:
-            out = self.current
-            self.advance()
-            return out
 
 
 def test_Hashtable():
