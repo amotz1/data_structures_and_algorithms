@@ -5,9 +5,7 @@ import string
 
 # [amotz]
 # hashtable partial implementation int and string are supported
-# the hashtable support collisions but automatically growing array but still not shrinking of the array
-
-# TODO: Use the new HashtableIterator in the code.
+# the hashtable support collisions and automatically growing and shrinking of the array
 
 def compute_hash_code(key):
     if type(key) == str:
@@ -48,9 +46,10 @@ class KeyValuePair:
 
 class Hashtable:
 
-    def __init__(self):
+    def __init__(self, do_resize=True):
         self.backing_array = [None] * 10
         self.size1 = 0
+        self.do_resize = do_resize
 
     def put(self, key, value):
         hash_code = compute_hash_code(key)
@@ -81,7 +80,8 @@ class Hashtable:
                 hashtable_element = KeyValuePair(key, value)
                 self.backing_array[index].add_link_at_end(hashtable_element)
                 self.size1 += 1
-            self.resize()
+            if self.do_resize:
+                self.resize()
 
     def get(self, key):
         hash_code = compute_hash_code(key)
@@ -132,8 +132,9 @@ class Hashtable:
             if self.backing_array[index].key == key:
                 self.backing_array[index] = None
                 self.size1 -= 1
-                self.resize()
-                return True
+                if self.do_resize:
+                    self.resize()
+                    return True
             else:
                 return False
         elif type(self.backing_array[index]) == linked_list.LinkedList:
@@ -143,8 +144,9 @@ class Hashtable:
                     if i.key == key:
                         self.backing_array[index].remove(i)
                         self.size1 -= 1
-                        self.resize()
-                        return True
+                        if self.do_resize:
+                            self.resize()
+                            return True
                 return False
             else:
                 for i in self.backing_array[index]:
@@ -155,8 +157,9 @@ class Hashtable:
                         hashtable_element = KeyValuePair(key, value)
                         self.backing_array[index] = hashtable_element
                         self.size1 -= 1
-                        self.resize()
-                        return True
+                        if self.do_resize:
+                            self.resize()
+                            return True
                 return False
         else:
             assert self.backing_array[index] is None
@@ -168,37 +171,22 @@ class Hashtable:
     def size(self):
         return self.size1
 
+    # this function resize the hashtable if needed
     def resize(self):
         if self.size() > 0.3 * len(self.backing_array):
-            new_hash = Hashtable()
-            new_hash.backing_array = [None] * len(self.backing_array) * 2
-            for i in range(len(self.backing_array)):
-                if self.backing_array[i] is None:
-                    pass
-                elif type(self.backing_array[i]) == KeyValuePair:
-                    new_hash.put(self.backing_array[i].key, self.backing_array[i].value)
-                else:
-                    assert type(self.backing_array[i]) == linked_list.LinkedList
-                    for ii in self.backing_array[i]:
-                        new_hash.put(ii.key, ii.value)
-            self.backing_array = new_hash.backing_array
-            assert self.size1 == new_hash.size1
-        # if 3 <= self.size() <= 0.15 * len(self.backing_array):
-        #     new_hash = Hashtable()
-        #     new_hash.backing_array = [None] * int(len(self.backing_array) / 2)
-        #     for i in range(len(self.backing_array)):
-        #         if self.backing_array[i] is None:
-        #             pass
-        #         elif type(self.backing_array[i]) == KeyValuePair:
-        #             new_hash.put(self.backing_array[i].key, self.backing_array[i].value)
-        #         else:
-        #             assert type(self.backing_array[i]) == linked_list.LinkedList
-        #             for ii in self.backing_array[i]:
-        #                 new_hash.put(ii.key, ii.value)
-        #     self.backing_array = new_hash.backing_array
-        #     assert self.size1 == new_hash.size1
-
-    # TODO fix the bug of the shrinking code that is now commented
+            temp_hash = Hashtable(False)
+            temp_hash.backing_array = [None] * len(self.backing_array) * 2
+            for i in self:
+                temp_hash.put(i.key, i.value)
+            self.backing_array = temp_hash.backing_array
+            assert self.size1 == temp_hash.size1
+        if 3 <= self.size() <= 0.15 * len(self.backing_array):
+            temp_hash = Hashtable(False)
+            temp_hash.backing_array = [None] * int(len(self.backing_array) / 2)
+            for i in self:
+                temp_hash.put(i.key, i.value)
+            self.backing_array = temp_hash.backing_array
+            assert self.size1 == temp_hash.size1
 
     def __iter__(self):
         return HashtableIterator(self)
@@ -327,7 +315,6 @@ def test_Hashtable():
     hashtable.put('abc', 8)
     assert hashtable.get('abc') == 8
     assert hashtable.size() == 4
-
     # testing hashtable_representation method and resizing of backing array
     assert hashtable.hashtable_representation() == [0, 1, [1, 2], 2, 3, 4, 5,
                                                     6, 7, 8, 9, 10, 11, 12, 13, 14, ['abc', 8], ['cab', 3], ['acb', 1],
@@ -337,33 +324,32 @@ def test_Hashtable():
     # single KeyValuePair in backing array location
     assert type(hashtable.backing_array[1]) == KeyValuePair
     assert hashtable.remove(1)
-    # assert len(hashtable.backing_array) == 10
+    assert len(hashtable.backing_array) == 10
     assert hashtable.get(1) is None
     assert hashtable.size() == 3
     # more then two KeyValuePairs in backing array location
-    # assert type(hashtable.backing_array[4]) == linked_list.LinkedList
+    assert type(hashtable.backing_array[4]) == linked_list.LinkedList
     assert hashtable.remove('cab')
     assert hashtable.get('cab') is None
     assert hashtable.size() == 2
     # test that all the key value pairs in the hashtable are still in the right places.
     # also that resizing of backing array is correct
-    # assert hashtable.hashtable_representation() == [0, 1, 2, 3, 4, ['abc', 8], ['acb', 1], 5, 6, 7, 8, 9]
+    assert hashtable.hashtable_representation() == [0, 1, 2, 3, 4, ['abc', 8], ['acb', 1], 5, 6, 7, 8, 9]
 
     assert not hashtable.remove(2)
     assert hashtable.size() == 2
     # test of removing a key that is not in the hashtable
     assert hashtable.get(2) is None
     # test that all the key value pairs in the hashtable are still in the right places
-    # assert hashtable.hashtable_representation() == [0, 1, 2, 3, 4, ['abc', 8], ['acb', 1], 5,
-    #                                                 6, 7, 8, 9]
+    assert hashtable.hashtable_representation() == [0, 1, 2, 3, 4, ['abc', 8], ['acb', 1], 5,
+                                                    6, 7, 8, 9]
 
     # removing a key in a bucket with exactly two keys.
     # checking consistence type of objects in a bucket with two KeyValuePair objects
-    # assert len(hashtable.backing_array) == 20
     assert hashtable.remove('acb')
     assert hashtable.size() == 1
-    # assert len(hashtable.backing_array) == 10
-    # assert type(hashtable.backing_array[4]) == KeyValuePair
+    assert len(hashtable.backing_array) == 10
+    assert type(hashtable.backing_array[4]) == KeyValuePair
     assert hashtable.remove('abc')
     assert hashtable.size() == 0
     assert hashtable.backing_array[4] is None
@@ -408,16 +394,22 @@ test_iterator()
 def create_hash_and_dict():
     hash1 = Hashtable()
     py_dict = {}
-    CONST = 1000
-    for i in range(CONST):
-        rand_num = generate_random_number()
-        rand_num_1 = generate_random_number()
-        rand_str = generate_random_string()
-        rand_str_1 = generate_random_string()
-        hash1.put(rand_num, rand_num_1)
-        hash1.put(rand_str, rand_str_1)
-        py_dict[rand_num] = rand_num_1
-        py_dict[rand_str] = rand_str_1
+    STRESS_TEST_SIZE = 1000
+    for i in range(STRESS_TEST_SIZE):
+        rand_num_key = generate_random_number()
+        rand_num_value = generate_random_number()
+        rand_str_key = generate_random_string()
+        rand_str_value = generate_random_string()
+        hash1.put(rand_num_key, rand_num_value)
+        hash1.put(rand_str_key, rand_str_value)
+        py_dict[rand_num_key] = rand_num_value
+        py_dict[rand_str_key] = rand_str_value
+
+    for i in hash1:
+        hash1.remove(i.key)
+        del py_dict[i.key]
+        if hash1.size() == 500:
+            break
     return hash1, py_dict
 
 
@@ -443,4 +435,6 @@ def test_big_hashtable():
 
 test_big_hashtable()
 
-# TODO a remove part for the big_hashtable test
+
+# TODO to make sure that the big tests test for updates
+# TODO testing the shrinking of the array and growing of the array in the big tests...
