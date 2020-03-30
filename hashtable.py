@@ -364,12 +364,7 @@ def test_iterator():
     # [2]: a backing array element containing a LinkedList
     # [3]: another regular backing array element containing a simple KeyValuePair to make sure that we keep iterating
     #      over the array after we've finished iterating over the list.
-    #
-    # Note that we expect that the Hashtable might choose to grow backing_array. In case it does, then what we intented
-    # to be in a LinkedList might get spread out over other backing_array cells, and so we choose 22, not 12, for the
-    # collision (this will still be collision in case the backing array is doubled to size 20), and we don't add
-    # anything else as doing so could turn what we intended to be single cells into LinkedLists.
-    hashtable = Hashtable()
+    hashtable = Hashtable(False)  # We don't want this Hashtable to grow and spread lists out during this test.
     hashtable.put(1, "a")
     hashtable.put(2, "b")
     hashtable.put(22, "bb")
