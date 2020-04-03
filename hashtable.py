@@ -203,13 +203,25 @@ class Hashtable:
 # (key, value) pairs. This just supports one of those, and it may be the case that it will look amateurish to a real
 # Python programmer.
 class HashtableIterator:
-    hash = None
-    index = 0
-    list_iter = None
-    current = None
 
-    # [aviv] It may be that a real Python programmer would know to hint that some of these are private by using "__",
-    # or something like that. Sorry :(
+    def __init__(self, hash):
+        # [aviv] It may be that a real Python programmer would know to hint that these members (variables and methods)
+        # are private by using "__", or something like that. Sorry :(
+
+        self.hash = hash
+        self.index = 0
+        self.list_iter = None
+        self.current = None
+        self.advance()
+
+    def __next__(self):
+        if self.current is None:
+            raise StopIteration
+        else:
+            out = self.current
+            self.advance()
+            return out
+
     def advance(self):
         if self.list_iter is not None:
             try:
@@ -238,18 +250,6 @@ class HashtableIterator:
                     self.advance()
                     return
             self.current = None
-
-    def __init__(self, hash):
-        self.hash = hash
-        self.advance()
-
-    def __next__(self):
-        if self.current is None:
-            raise StopIteration
-        else:
-            out = self.current
-            self.advance()
-            return out
 
 
 def test_Hashtable():
@@ -364,12 +364,7 @@ def test_iterator():
     # [2]: a backing array element containing a LinkedList
     # [3]: another regular backing array element containing a simple KeyValuePair to make sure that we keep iterating
     #      over the array after we've finished iterating over the list.
-    #
-    # Note that we expect that the Hashtable might choose to grow backing_array. In case it does, then what we intented
-    # to be in a LinkedList might get spread out over other backing_array cells, and so we choose 22, not 12, for the
-    # collision (this will still be collision in case the backing array is doubled to size 20), and we don't add
-    # anything else as doing so could turn what we intended to be single cells into LinkedLists.
-    hashtable = Hashtable()
+    hashtable = Hashtable(False)  # We don't want this Hashtable to grow and spread lists out during this test.
     hashtable.put(1, "a")
     hashtable.put(2, "b")
     hashtable.put(22, "bb")
