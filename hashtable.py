@@ -134,7 +134,7 @@ class Hashtable:
                 self.size1 -= 1
                 if self.do_resize:
                     self.resize()
-                    return True
+                return True
             else:
                 return False
         elif type(self.backing_array[index]) == linked_list.LinkedList:
@@ -146,7 +146,7 @@ class Hashtable:
                         self.size1 -= 1
                         if self.do_resize:
                             self.resize()
-                            return True
+                        return True
                 return False
             else:
                 for i in self.backing_array[index]:
@@ -159,7 +159,7 @@ class Hashtable:
                         self.size1 -= 1
                         if self.do_resize:
                             self.resize()
-                            return True
+                        return True
                 return False
         else:
             assert self.backing_array[index] is None
@@ -178,15 +178,15 @@ class Hashtable:
             temp_hash.backing_array = [None] * len(self.backing_array) * 2
             for i in self:
                 temp_hash.put(i.key, i.value)
-            self.backing_array = temp_hash.backing_array
             assert self.size1 == temp_hash.size1
+            self.backing_array = temp_hash.backing_array
         if 3 <= self.size() <= 0.15 * len(self.backing_array):
             temp_hash = Hashtable(False)
             temp_hash.backing_array = [None] * int(len(self.backing_array) / 2)
             for i in self:
                 temp_hash.put(i.key, i.value)
-            self.backing_array = temp_hash.backing_array
             assert self.size1 == temp_hash.size1
+            self.backing_array = temp_hash.backing_array
 
     def __iter__(self):
         return HashtableIterator(self)
@@ -437,7 +437,6 @@ def test_big_hashtable():
 
 
 test_big_hashtable()
-
 
 # TODO to make sure that the big tests test for updates
 # TODO testing the shrinking of the array and growing of the array in the big tests...
