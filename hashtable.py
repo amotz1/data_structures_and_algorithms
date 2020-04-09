@@ -80,8 +80,7 @@ class Hashtable:
                 hashtable_element = KeyValuePair(key, value)
                 self.backing_array[index].add_link_at_end(hashtable_element)
                 self.size1 += 1
-            if self.do_resize:
-                self.resize()
+            self.check_resize()
 
     def get(self, key):
         hash_code = compute_hash_code(key)
@@ -132,8 +131,7 @@ class Hashtable:
             if self.backing_array[index].key == key:
                 self.backing_array[index] = None
                 self.size1 -= 1
-                if self.do_resize:
-                    self.resize()
+                self.check_resize()
                 return True
             else:
                 return False
@@ -144,8 +142,7 @@ class Hashtable:
                     if i.key == key:
                         self.backing_array[index].remove(i)
                         self.size1 -= 1
-                        if self.do_resize:
-                            self.resize()
+                        self.check_resize()
                         return True
                 return False
             else:
@@ -157,8 +154,7 @@ class Hashtable:
                         hashtable_element = KeyValuePair(key, value)
                         self.backing_array[index] = hashtable_element
                         self.size1 -= 1
-                        if self.do_resize:
-                            self.resize()
+                        self.check_resize()
                         return True
                 return False
         else:
@@ -171,8 +167,10 @@ class Hashtable:
     def size(self):
         return self.size1
 
-    # this function resize the hashtable if needed
-    def resize(self):
+    # this function check_resize the hashtable if needed
+    def check_resize(self):
+        if not self.do_resize:
+            return
         if self.size() > 0.3 * len(self.backing_array):
             temp_hash = Hashtable(False)
             temp_hash.backing_array = [None] * len(self.backing_array) * 2
@@ -434,4 +432,5 @@ def test_big_hashtable():
 test_big_hashtable()
 
 # TODO to make sure that the big tests test for updates
+# TODO refactoring the check_resize method
 # TODO testing the shrinking of the array and growing of the array in the big tests...
