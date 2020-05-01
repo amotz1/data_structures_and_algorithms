@@ -1,6 +1,5 @@
 import hashtable
 
-
 import hashtable
 
 
@@ -9,32 +8,36 @@ import hashtable
 
 class Graph:
     def __init__(self) -> object:
-        self.label2vertex_or_edge = hashtable.Hashtable()
+        self.label2vertex = hashtable.Hashtable()
 
     def create_vertex(self, label):
         vertex = Vertex(label)
-        self.label2vertex_or_edge.put(label, vertex)
-
-    def create_edge(self, src, dest, weight):
-        edge = Edge(src, dest, weight)
-        self.label2vertex_or_edge.put(edge.label, edge)
-        src = self.label2vertex_or_edge.get(src.label)
-        dest = self.label2vertex_or_edge.get(dest.label)
-        src.add_edge(edge)
-        dest.add_edge(edge)
-
-    def get_vertex(self, label):
-        vertex = self.label2vertex_or_edge.get(label)
+        self.label2vertex.put(label, vertex)
         return vertex
 
-    def get_edge(self, src, dest):
-        edge_label = '{}-{}'.format(src.label, dest.label)
-        edge = self.label2vertex_or_edge.get(edge_label)
+    def create_edge(self, vertex_obj_1, vertex_obj_2, weight):
+        # checking that both two argument vertices are present in the graph
+        vertices_arguments_in_graph = 0
+        for i in self.label2vertex:
+            if i.value == vertex_obj_1 or i.value == vertex_obj_2:
+                vertices_arguments_in_graph += 1
+        assert vertices_arguments_in_graph == 2, "one or both of the vertices that you specified are not in the graph"
+        edge = Edge(vertex_obj_1, vertex_obj_2, weight)
+        vertex_obj_1 = self.label2vertex.get(vertex_obj_1.label)
+        vertex_obj_2 = self.label2vertex.get(vertex_obj_2.label)
+        vertex_obj_1.add_edge(edge)
+        vertex_obj_2.add_edge(edge)
+        vertex_obj_1.add_vertex_neighbor(edge.vertex_obj_2)
+        vertex_obj_2.add_vertex_neighbor(edge.vertex_obj_1)
         return edge
+
+    def get_vertex(self, label):
+        vertex = self.label2vertex.get(label)
+        return vertex
 
     # def traverse(self):
     #
-    # def edges_weights_sum(self):
+    # def edges_weighths_sum(self):
     #
     # def get_neighbors(self):
     # def most_connected_path(self):
@@ -46,19 +49,27 @@ class Vertex:
     def __init__(self, label):
         self.label = label
         self.edges = []
+        self.neighbors = []
 
+    @property
     def get_label(self):
         return self.label
+
+    @property
+    def get_neighbors(self):
+        return self.neighbors
 
     def add_edge(self, edge):
         self.edges.append(edge)
 
+    def add_vertex_neighbor(self, neighbor):
+        self.neighbors.append(neighbor)
+
 
 class Edge:
-    def __init__(self, src, dest, weight):
-        self.label = '{}-{}'.format(src.label, dest.label)
-        self.src = src
-        self.dest = dest
+    def __init__(self, vertex_obj_1, vertex_obj_2, weight):
+        self.vertex_obj_1 = vertex_obj_1
+        self.vertex_obj_2 = vertex_obj_2
         self.weight = weight
 
 
@@ -75,29 +86,14 @@ def test_Graph():
     frontal_lobe = brain_network.get_vertex('frontal_lobe')
     hypocampus = brain_network.get_vertex('hypocampus')
     brain_network.create_edge(brain_stem, thalamus, 3)
-    nerve = brain_network.get_edge(brain_stem, thalamus)
-    assert nerve.src == brain_stem
-    assert nerve.dest == thalamus
     brain_network.create_edge(brain_stem, amygdala, 5)
-    nerve = brain_network.get_edge(brain_stem, amygdala)
-    assert nerve.src == brain_stem
-    assert nerve.dest == amygdala
     brain_network.create_edge(brain_stem, hypocampus, 5)
-    nerve = brain_network.get_edge(brain_stem, hypocampus)
-    assert nerve.src == brain_stem
-    assert nerve.dest == hypocampus
     brain_network.create_edge(thalamus, frontal_lobe, 5)
-    nerve = brain_network.get_edge(thalamus, frontal_lobe)
-    assert nerve.src == thalamus
-    assert nerve.dest == frontal_lobe
     brain_network.create_edge(amygdala, frontal_lobe, 8)
-    nerve = brain_network.get_edge(amygdala, frontal_lobe)
-    assert nerve.src == amygdala
-    assert nerve.dest == frontal_lobe
     brain_network.create_edge(hypocampus, frontal_lobe, 10)
-    nerve = brain_network.get_edge(hypocampus, frontal_lobe)
-    assert nerve.src == hypocampus
-    assert nerve.dest == frontal_lobe
+    assert frontal_lobe.get_neighbors[0].label == 'thalamus'
+    assert frontal_lobe.get_neighbors[1].label == 'amygdala'
+    assert frontal_lobe.get_neighbors[2].label == 'hypocampus'
     # assert brain_network.traverse() == ['brain_stem','hypocampus','amygdala','frontal_lobe']
     # assert brain_network.edges_weights_sum('amygdala') == 8
     # assert brain_network.edges_weights_sum('frontal_lobe') == 0
@@ -113,4 +109,3 @@ def test_Graph():
 
 
 test_Graph()
-
