@@ -3,11 +3,11 @@ import hashtable
 import hashtable
 
 
-# partial implementation of a directed graph
+# partial implementation of an undirected graph
 # the graph supports vertices and edges
 
 class Graph:
-    def __init__(self) -> object:
+    def __init__(self):
         self.label2vertex = hashtable.Hashtable()
 
     def create_vertex(self, label):
@@ -17,32 +17,29 @@ class Graph:
 
     def create_edge(self, vertex_obj_1, vertex_obj_2, weight):
         # checking that both two argument vertices are present in the graph
-        vertices_arguments_in_graph = 0
-        for i in self.label2vertex:
-            if i.value == vertex_obj_1 or i.value == vertex_obj_2:
-                vertices_arguments_in_graph += 1
-        assert vertices_arguments_in_graph == 2, "one or both of the vertices that you specified are not in the graph"
+        assert hasattr(vertex_obj_1, 'label') is True, 'either one or two of the objects you try to connect ' \
+                                                       'are not vertices'
+        assert hasattr(vertex_obj_2, 'label') is True, ' either one or two of the objects you try to connect ' \
+                                                       'are not vertices'
+        assert self.label2vertex.get(vertex_obj_1.label) == vertex_obj_1, 'either one or two of the vertices you try ' \
+                                                                          'to connect is not in the graph'
+        assert self.label2vertex.get(vertex_obj_2.label) == vertex_obj_2, 'either one or two of the vertices ' \
+                                                                          'you try to connect is not in the graph'
         edge = Edge(vertex_obj_1, vertex_obj_2, weight)
         vertex_obj_1 = self.label2vertex.get(vertex_obj_1.label)
         vertex_obj_2 = self.label2vertex.get(vertex_obj_2.label)
-        vertex_obj_1.add_edge(edge)
-        vertex_obj_2.add_edge(edge)
-        vertex_obj_1.add_vertex_neighbor(edge.vertex_obj_2)
-        vertex_obj_2.add_vertex_neighbor(edge.vertex_obj_1)
+        vertex_obj_1.edges.append(edge)
+        vertex_obj_2.edges.append(edge)
+        vertex_obj_1.neighbors.append(edge.vertex_obj_2)
+        vertex_obj_2.neighbors.append(edge.vertex_obj_1)
         return edge
 
     def get_vertex(self, label):
         vertex = self.label2vertex.get(label)
         return vertex
 
-    # def traverse(self):
-    #
-    # def edges_weighths_sum(self):
-    #
-    # def get_neighbors(self):
-    # def most_connected_path(self):
-    #
-    # def least_connected_path(self):
+    # TODO: A SIZE METHOD TO THE GRAPH THAT COUNTS VERTICES
+    #  SO WHEN CALLING THE STACK I WILL CALL AN ARRAY WITH THE SIZE OF THE VERTICES
 
 
 class Vertex:
@@ -51,19 +48,11 @@ class Vertex:
         self.edges = []
         self.neighbors = []
 
-    @property
     def get_label(self):
         return self.label
 
-    @property
     def get_neighbors(self):
         return self.neighbors
-
-    def add_edge(self, edge):
-        self.edges.append(edge)
-
-    def add_vertex_neighbor(self, neighbor):
-        self.neighbors.append(neighbor)
 
 
 class Edge:
@@ -73,8 +62,37 @@ class Edge:
         self.weight = weight
 
 
+class Stack:
+
+    def __init__(self, array_size):
+        self.array = [None] * array_size
+        self.top = -1
+
+    def push(self, vertex_obj):
+        if self.top == len(self.array) - 1:
+            print('stack overflow, please pop a vertex before you push more')
+        else:
+            self.top = self.top + 1
+            self.array[self.top] = vertex_obj
+
+    def pop(self):
+        if self.top == -1:
+            print("the stack is empty, please push a vertex before you try to pop")
+            return None
+        vertex_obj = self.array[self.top]
+        self.array[self.top] = None
+        self.top = self.top - 1
+        return vertex_obj
+
+    def show_vertices_labels(self):
+        array = []
+        for i in self.array:
+            array.append(i.label)
+        return array
+
+
 def test_Graph():
-    brain_network: Graph = Graph()
+    brain_network = Graph()
     assert brain_network.get_vertex('hillel') is None
     for vertex in ['hypocampus', 'thalamus', 'amygdala', 'frontal_lobe', 'brain_stem']:
         brain_network.create_vertex(vertex)
@@ -91,21 +109,42 @@ def test_Graph():
     brain_network.create_edge(thalamus, frontal_lobe, 5)
     brain_network.create_edge(amygdala, frontal_lobe, 8)
     brain_network.create_edge(hypocampus, frontal_lobe, 10)
-    assert frontal_lobe.get_neighbors[0].label == 'thalamus'
-    assert frontal_lobe.get_neighbors[1].label == 'amygdala'
-    assert frontal_lobe.get_neighbors[2].label == 'hypocampus'
-    # assert brain_network.traverse() == ['brain_stem','hypocampus','amygdala','frontal_lobe']
-    # assert brain_network.edges_weights_sum('amygdala') == 8
-    # assert brain_network.edges_weights_sum('frontal_lobe') == 0
-    # assert brain_network.edges_weights_sum('hypocampus') == 10
-    # assert brain_network.edges_weights_sum('thalamus') == 5
-    # assert brain_network. edges_weights_sum('brain_stem') == 13
-    # neighbors_list = brain_network.get_neighbors('brain_stem')
-    # assert neighbors_list[0].get_label() == 'hypocampus'
-    # assert neighbors_list[1].get_label() == 'thalamus'
-    # assert neighbors_list[2].get_label() == 'amygdala'
-    # assert brain_network.most_connected_path('brain_stem','frontal_lobe') == ['brain_stem' , 'hypocampus', 'frontal_lobe', 15]
-    # assert brain_network.least_connected_path('brain_stem','frontal_lobe') == ['brain_stem', 'thalamus', 'frontal_lobe', 8]
+    assert frontal_lobe.neighbors[0].label == 'thalamus'
+    assert frontal_lobe.neighbors[1].label == 'amygdala'
+    assert frontal_lobe.neighbors[2].label == 'hypocampus'
+    stack = Stack(4)
+    stack.push(brain_stem)
+    stack.push(thalamus)
+    stack.push(hypocampus)
+    stack.push(frontal_lobe)
+    assert stack.show_vertices_labels() == ['brain_stem', 'thalamus', 'hypocampus', 'frontal_lobe']
+    stack.push(vertex)
+    vertex = stack.pop()
+    assert vertex == frontal_lobe
+    vertex = stack.pop()
+    assert vertex == hypocampus
+    vertex = stack.pop()
+    assert vertex == thalamus
+    vertex = stack.pop()
+    assert vertex == brain_stem
+    vertex = stack.pop()
+    assert vertex is None
 
+    # TODO TESTS FOR SIZE METHOD AND TRAVERSE METHOD IN A SEPARATE ALGORITHM CLASS
+
+
+# assert brain_network.traverse() == ['brain_stem','hypocampus','amygdala','frontal_lobe']
+# assert brain_network.edges_weights_sum('amygdala') == 8
+# assert brain_network.edges_weights_sum('frontal_lobe') == 0
+# assert brain_network.edges_weights_sum('hypocampus') == 10
+# assert brain_network.edges_weights_sum('thalamus') == 5
+# assert brain_network. edges_weights_sum('brain_stem') == 13
+# neighbors_list = brain_network.get_neighbors('brain_stem')
+# assert neighbors_list[0].get_label() == 'hypocampus'
+# assert neighbors_list[1].get_label() == 'thalamus'
+# assert neighbors_list[2].get_label() == 'amygdala'
+# assert brain_network.most_connected_path('brain_stem','frontal_lobe') == ['brain_stem' , 'hypocampus', 'frontal_lobe', 15]
+# assert brain_network.least_connected_path('brain_stem','frontal_lobe') == ['brain_stem', 'thalamus', 'frontal_lobe', 8]
+#
 
 test_Graph()
