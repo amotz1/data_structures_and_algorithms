@@ -4,17 +4,15 @@ import hashtable
 
 
 # implementation of an undirected graph, the graph supports vertices and edges
-#  added a stack class but no algorithms yet
+#  added a partial implementation of a stack class but no algorithms yet
 
 class Graph:
     def __init__(self):
         self.label2vertex = hashtable.Hashtable()
-        self.size = 0
 
     def create_vertex(self, label):
         vertex = Vertex(label)
         self.label2vertex.put(label, vertex)
-        self.size += 1
         return vertex
 
     def create_edge(self, vertex_obj_1, vertex_obj_2, weight):
@@ -39,9 +37,6 @@ class Graph:
     def get_vertex(self, label):
         vertex = self.label2vertex.get(label)
         return vertex
-
-    def get_size(self):
-        return self.size
 
 
 class Vertex:
@@ -71,27 +66,19 @@ class Stack:
         self.top = -1
 
     def push(self, vertex_obj):
-        if self.top == len(self.array) - 1:
-            print('stack overflow, please pop a vertex before you push more')
-        else:
-            self.top = self.top + 1
-            self.array[self.top] = vertex_obj
+        assert self.top != len(self.array) - 1, "the stack is full of elements"
+        self.top = self.top + 1
+        self.array[self.top] = vertex_obj
 
     def pop(self):
-        if self.top == -1:
-            print("the stack is empty, please push a vertex before you try to pop")
-            return None
+        assert self.top != -1, "the stack is empty"
         vertex_obj = self.array[self.top]
         self.array[self.top] = None
         self.top = self.top - 1
         return vertex_obj
 
-    def show_vertices_labels(self):
-        array = []
-        for i in self.array:
-            array.append(i.label)
-        return array
 
+# TODO a stack that dynamically change size
 
 def test_Graph():
     brain_network = Graph()
@@ -105,7 +92,6 @@ def test_Graph():
     amygdala = brain_network.get_vertex('amygdala')
     frontal_lobe = brain_network.get_vertex('frontal_lobe')
     hypocampus = brain_network.get_vertex('hypocampus')
-    assert brain_network.get_size() == 5
     brain_network.create_edge(brain_stem, thalamus, 3)
     brain_network.create_edge(brain_stem, amygdala, 5)
     brain_network.create_edge(brain_stem, hypocampus, 5)
@@ -115,23 +101,18 @@ def test_Graph():
     assert frontal_lobe.neighbors[0].label == 'thalamus'
     assert frontal_lobe.neighbors[1].label == 'amygdala'
     assert frontal_lobe.neighbors[2].label == 'hypocampus'
-    stack = Stack(brain_network.get_size())
+    STACK_SIZE = 1000
+    stack = Stack(STACK_SIZE)
     for vertex in [brain_stem, thalamus, amygdala, hypocampus, frontal_lobe]:
         stack.push(vertex)
-    assert stack.show_vertices_labels() == ['brain_stem', 'thalamus', 'amygdala', 'hypocampus', 'frontal_lobe']
     for vertex in [frontal_lobe, hypocampus, amygdala, thalamus, brain_stem]:
         vertex_obj = stack.pop()
         assert vertex_obj == vertex
-    vertex_obj = stack.pop()
-    assert vertex_obj is None
     # graph_algorithms = Algorithms()
     # assert graph_algorithms.dfs(brain_network, thalamus) == ['thalamus', 'brain_stem', 'hypocampus',
     #                                                          'frontal_lobe', 'amygdala']
     # assert graph_algorithms.bfs(brain_network, thalamus) == ['thalamus', 'brain_stem', 'fronta_lobe',
     #                                                          'amygdala', 'hypocampus']
-
-
-
 
     # TODO dfs algorithm
 
