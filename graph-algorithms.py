@@ -1,10 +1,11 @@
 import hashtable
 
 import hashtable
-
+import stack
 
 # implementation of an undirected graph, the graph supports vertices and edges
 #  added a partial implementation of a stack class but no algorithms yet
+
 
 class Graph:
     def __init__(self):
@@ -16,7 +17,7 @@ class Graph:
         return vertex
 
     def create_edge(self, vertex_obj_1, vertex_obj_2, weight):
-        # checking that both two argument vertices are present in the graph
+        # checking that both two argument vertices are Vertex instances that are present in the graph
         assert hasattr(vertex_obj_1, 'label') is True, 'either one or two of the objects you try to connect ' \
                                                        'are not vertices'
         assert hasattr(vertex_obj_2, 'label') is True, ' either one or two of the objects you try to connect ' \
@@ -59,34 +60,10 @@ class Edge:
         self.weight = weight
 
 
-class Stack:
-
-    def __init__(self, array_size):
-        self.array = [None] * array_size
-        self.top = -1
-
-    def push(self, vertex_obj):
-        assert self.top != len(self.array) - 1, "the stack is full of elements"
-        self.top = self.top + 1
-        self.array[self.top] = vertex_obj
-
-    def pop(self):
-        assert self.top != -1, "the stack is empty"
-        vertex_obj = self.array[self.top]
-        self.array[self.top] = None
-        self.top = self.top - 1
-        return vertex_obj
-
-
-# TODO a stack that dynamically change size
-
-def test_Graph():
+def create_test_graph():
     brain_network = Graph()
-    assert brain_network.get_vertex('hillel') is None
     for vertex in ['hypocampus', 'thalamus', 'amygdala', 'frontal_lobe', 'brain_stem']:
         brain_network.create_vertex(vertex)
-        brain_region = brain_network.get_vertex(vertex)
-        assert brain_region.label == vertex
     brain_stem = brain_network.get_vertex('brain_stem')
     thalamus = brain_network.get_vertex('thalamus')
     amygdala = brain_network.get_vertex('amygdala')
@@ -98,16 +75,42 @@ def test_Graph():
     brain_network.create_edge(thalamus, frontal_lobe, 5)
     brain_network.create_edge(amygdala, frontal_lobe, 8)
     brain_network.create_edge(hypocampus, frontal_lobe, 10)
+    return brain_network
+
+
+def test_stack():
+    brain_network = create_test_graph()
+    brain_stem = brain_network.get_vertex('brain_stem')
+    thalamus = brain_network.get_vertex('thalamus')
+    amygdala = brain_network.get_vertex('amygdala')
+    frontal_lobe = brain_network.get_vertex('frontal_lobe')
+    hypocampus = brain_network.get_vertex('hypocampus')
+    STACK_SIZE = 1000
+    st = stack.Stack(STACK_SIZE)
+    for vertex_obj in [brain_stem,
+                       thalamus, amygdala,
+                       frontal_lobe, hypocampus]:
+        st.push(vertex_obj)
+    for vertex_obj in [hypocampus,
+                       frontal_lobe, amygdala,
+                       thalamus, brain_stem]:
+        st_vertex = st.pop()
+        assert st_vertex == vertex_obj
+    assert st.pop() is None
+
+
+test_stack()
+
+
+def test_Graph():
+    brain_network = create_test_graph()
+    for vertex in ['hypocampus', 'thalamus', 'amygdala', 'frontal_lobe', 'brain_stem']:
+        assert brain_network.get_vertex(vertex).label == vertex
+    assert brain_network.get_vertex('hillel') is None
+    frontal_lobe = brain_network.get_vertex('frontal_lobe')
     assert frontal_lobe.neighbors[0].label == 'thalamus'
     assert frontal_lobe.neighbors[1].label == 'amygdala'
     assert frontal_lobe.neighbors[2].label == 'hypocampus'
-    STACK_SIZE = 1000
-    stack = Stack(STACK_SIZE)
-    for vertex in [brain_stem, thalamus, amygdala, hypocampus, frontal_lobe]:
-        stack.push(vertex)
-    for vertex in [frontal_lobe, hypocampus, amygdala, thalamus, brain_stem]:
-        vertex_obj = stack.pop()
-        assert vertex_obj == vertex
     # graph_algorithms = Algorithms()
     # assert graph_algorithms.dfs(brain_network, thalamus) == ['thalamus', 'brain_stem', 'hypocampus',
     #                                                          'frontal_lobe', 'amygdala']
