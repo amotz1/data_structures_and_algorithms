@@ -60,6 +60,7 @@ class Edge:
         self.vertex_obj_2 = vertex_obj_2
         self.weight = weight
 
+
 # class Algorithms:
 #
 #     def dfs(self, graph, vertex):
@@ -69,12 +70,6 @@ class Edge:
 #         st.push(vertex)
 #         vertex = st.pop()
 #         output.append(vertex)
-
-
-
-
-
-
 
 
 def create_test_graph():
