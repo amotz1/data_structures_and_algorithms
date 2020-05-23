@@ -3,6 +3,7 @@ import hashtable
 import hashtable
 import stack
 
+
 # implementation of an undirected graph, the graph supports vertices and edges
 #  added a partial implementation of a stack class but no algorithms yet
 
@@ -59,6 +60,22 @@ class Edge:
         self.vertex_obj_2 = vertex_obj_2
         self.weight = weight
 
+# class Algorithms:
+#
+#     def dfs(self, graph, vertex):
+#         vertex = graph.get_vertex(vertex)
+#         output = []
+#         st = stack.Stack()
+#         st.push(vertex)
+#         vertex = st.pop()
+#         output.append(vertex)
+
+
+
+
+
+
+
 
 def create_test_graph():
     brain_network = Graph()
@@ -76,30 +93,6 @@ def create_test_graph():
     brain_network.create_edge(amygdala, frontal_lobe, 8)
     brain_network.create_edge(hypocampus, frontal_lobe, 10)
     return brain_network
-
-
-def test_stack():
-    brain_network = create_test_graph()
-    brain_stem = brain_network.get_vertex('brain_stem')
-    thalamus = brain_network.get_vertex('thalamus')
-    amygdala = brain_network.get_vertex('amygdala')
-    frontal_lobe = brain_network.get_vertex('frontal_lobe')
-    hypocampus = brain_network.get_vertex('hypocampus')
-    STACK_SIZE = 1000
-    st = stack.Stack(STACK_SIZE)
-    for vertex_obj in [brain_stem,
-                       thalamus, amygdala,
-                       frontal_lobe, hypocampus]:
-        st.push(vertex_obj)
-    for vertex_obj in [hypocampus,
-                       frontal_lobe, amygdala,
-                       thalamus, brain_stem]:
-        st_vertex = st.pop()
-        assert st_vertex == vertex_obj
-    assert st.pop() is None
-
-
-test_stack()
 
 
 def test_Graph():

@@ -1,6 +1,6 @@
 class Stack:
 
-    def __init__(self, array_size):
+    def __init__(self, array_size=1000):
         self.array = [None] * array_size
         self.top = -1
         self.size = 0
@@ -27,11 +27,18 @@ class Stack:
             return element
         return None
 
-    # this function is still here strictly for testing purposes and i will erase it soon
-    def show_vertices_labels(self):
-        array = []
-        for i in self.array:
-            array.append(i.label)
-        return array
+
+def test_stack():
+
+    st = Stack()
+    for element in [5, 3, 'hi', 'dina', 8]:
+        st.push(element)
+    for element in [8, 'dina', 'hi', 3, 5]:
+        st_element = st.pop()
+        assert st_element == element
+    assert st.pop() is None
+
+
+test_stack()
 
     # TODO a stack that dynamically change size
