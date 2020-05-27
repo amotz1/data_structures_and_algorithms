@@ -1,11 +1,9 @@
 import hashtable
-
-import hashtable
 import stack
 
 
 # implementation of an undirected graph, the graph supports vertices and edges
-#  added a partial implementation of a stack class but no algorithms yet
+#  added a partial implementation of a stack class and an algorithm class with a dfs method
 
 
 class Graph:
@@ -24,16 +22,18 @@ class Graph:
         assert hasattr(vertex_obj_2, 'label') is True, ' either one or two of the objects you try to connect ' \
                                                        'are not vertices'
         assert self.label2vertex.get(vertex_obj_1.label) == vertex_obj_1, 'either one or two of the vertices you try ' \
-                                                                          'to connect is not in the graph'
+                                                                          'to connect are not in the graph'
         assert self.label2vertex.get(vertex_obj_2.label) == vertex_obj_2, 'either one or two of the vertices ' \
-                                                                          'you try to connect is not in the graph'
+                                                                          'you try to connect are not in the graph'
         edge = Edge(vertex_obj_1, vertex_obj_2, weight)
+        # appending the edge and the vertices it contains
+        # to a separate edges and neighbors_list lists in vertices objects
         vertex_obj_1 = self.label2vertex.get(vertex_obj_1.label)
         vertex_obj_2 = self.label2vertex.get(vertex_obj_2.label)
         vertex_obj_1.edges.append(edge)
         vertex_obj_2.edges.append(edge)
-        vertex_obj_1.neighbors.append(edge.vertex_obj_2)
-        vertex_obj_2.neighbors.append(edge.vertex_obj_1)
+        vertex_obj_1.neighbors_list.append(edge.vertex_obj_2)
+        vertex_obj_2.neighbors_list.append(edge.vertex_obj_1)
         return edge
 
     def get_vertex(self, label):
@@ -45,13 +45,13 @@ class Vertex:
     def __init__(self, label):
         self.label = label
         self.edges = []
-        self.neighbors = []
+        self.neighbors_list = []
 
     def get_label(self):
         return self.label
 
     def get_neighbors(self):
-        return self.neighbors
+        return self.neighbors_list
 
 
 class Edge:
@@ -61,15 +61,23 @@ class Edge:
         self.weight = weight
 
 
-# class Algorithms:
-#
-#     def dfs(self, graph, vertex):
-#         vertex = graph.get_vertex(vertex)
-#         output = []
-#         st = stack.Stack()
-#         st.push(vertex)
-#         vertex = st.pop()
-#         output.append(vertex)
+class Algorithms:
+
+    def dfs(self, graph, vertex_label):
+        vertex = graph.get_vertex(vertex_label)
+        vertices_list = []
+        seen = hashtable.Hashtable()
+        st = stack.Stack()
+        st.push(vertex)
+        while not st.is_empty():
+            vertex = st.pop()
+            vertices_list.append(vertex)
+            seen.put(vertex.label, vertex)
+            neighbors_list = vertex.get_neighbors()
+            for i in neighbors_list:
+                if seen.get(i.label) is not i:
+                    st.push(i)
+        return vertices_list
 
 
 def create_test_graph():
@@ -92,20 +100,37 @@ def create_test_graph():
 
 def test_Graph():
     brain_network = create_test_graph()
+    # vertex that is not in the graph
+    assert brain_network.get_vertex('hillel') is None
     for vertex in ['hypocampus', 'thalamus', 'amygdala', 'frontal_lobe', 'brain_stem']:
         assert brain_network.get_vertex(vertex).label == vertex
-    assert brain_network.get_vertex('hillel') is None
     frontal_lobe = brain_network.get_vertex('frontal_lobe')
-    assert frontal_lobe.neighbors[0].label == 'thalamus'
-    assert frontal_lobe.neighbors[1].label == 'amygdala'
-    assert frontal_lobe.neighbors[2].label == 'hypocampus'
-    # graph_algorithms = Algorithms()
-    # assert graph_algorithms.dfs(brain_network, thalamus) == ['thalamus', 'brain_stem', 'hypocampus',
-    #                                                          'frontal_lobe', 'amygdala']
-    # assert graph_algorithms.bfs(brain_network, thalamus) == ['thalamus', 'brain_stem', 'fronta_lobe',
-    #                                                          'amygdala', 'hypocampus']
 
-    # TODO dfs algorithm
+    # vertex contains it neighbors
+    assert frontal_lobe.neighbors_list[0].label == 'thalamus'
+    assert frontal_lobe.neighbors_list[1].label == 'amygdala'
+    assert frontal_lobe.neighbors_list[2].label == 'hypocampus'
+    graph_algorithms = Algorithms()
+    graph_algorithms.dfs(brain_network, 'thalamus')
+    vertices_list = graph_algorithms.dfs(brain_network, 'thalamus')
+
+    # dfs output with root node thalamus
+    assert vertices_list[0].label == 'thalamus'
+    assert vertices_list[1].label == 'frontal_lobe'
+    assert vertices_list[2].label == 'hypocampus'
+    assert vertices_list[3].label == 'brain_stem'
+    assert vertices_list[4].label == 'amygdala'
+
+    # vertices_list = graph_algorithms.bfs(brain_network, 'thalamus')
+    # bfs output with root node thalamus
+    # assert vertices_list[0].label == 'thalamus'
+    # assert vertices_list[1].label == 'frontal_lobe'
+    # assert vertices_list[2].label == 'brain_stem'
+    # assert vertices_list[3].label == 'amygdala'
+    # assert vertices_list[4].label == 'hypocampus'
+
+    # TODO: QUEUE CLASS TESTS AND IMPLEMENTATION IN A SEPARATE FILE
+    # TODO bfs algorithm
 
 
 # assert brain_network.traverse() == ['brain_stem','hypocampus','amygdala','frontal_lobe']
