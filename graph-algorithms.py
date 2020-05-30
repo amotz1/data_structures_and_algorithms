@@ -9,10 +9,12 @@ import stack
 class Graph:
     def __init__(self):
         self.label2vertex = hashtable.Hashtable()
+        self.size1 = 0
 
     def create_vertex(self, label):
         vertex = Vertex(label)
         self.label2vertex.put(label, vertex)
+        self.size1 += 1
         return vertex
 
     def create_edge(self, vertex_obj_1, vertex_obj_2, weight):
@@ -39,6 +41,9 @@ class Graph:
     def get_vertex(self, label):
         vertex = self.label2vertex.get(label)
         return vertex
+
+    def size(self):
+        return self.size
 
 
 class Vertex:
@@ -74,9 +79,27 @@ class Algorithms:
             vertices_list.append(vertex)
             seen.put(vertex.label, vertex)
             neighbors_list = vertex.get_neighbors()
-            for i in neighbors_list:
-                if seen.get(i.label) is not i:
-                    st.push(i)
+            for vertex in neighbors_list:
+                if seen.get(vertex.label) is not vertex:
+                    st.push(vertex)
+        return vertices_list
+
+    def recursive_dfs(self, graph, vertex_label):
+        seen = hashtable.Hashtable()
+        vertices_list = []
+        vertices_list = self._recursive_dfs(graph, vertex_label, vertices_list, seen)
+        return vertices_list
+
+    def _recursive_dfs(self, graph, vertex_label, vertices_list, seen):
+        if seen.size() == graph.size():
+            return
+        vertex = graph.get_vertex(vertex_label)
+        seen.put(vertex.label, vertex)
+        vertices_list.append(vertex)
+        neighbors_list = vertex.get_neighbors()
+        for vertex in neighbors_list:
+            if seen.get(vertex.label) is not vertex:
+                self._recursive_dfs(graph, vertex.label, vertices_list, seen)
         return vertices_list
 
 
@@ -120,6 +143,17 @@ def test_Graph():
     assert vertices_list[2].label == 'hypocampus'
     assert vertices_list[3].label == 'brain_stem'
     assert vertices_list[4].label == 'amygdala'
+
+    graph_algorithms.recursive_dfs(brain_network, 'thalamus')
+    vertices_list = graph_algorithms.recursive_dfs(brain_network, 'thalamus')
+
+    # dfs output with root node thalamus
+    graph_algorithms.recursive_dfs(brain_network, 'thalamus')
+    assert vertices_list[0].label == 'thalamus'
+    assert vertices_list[1].label == 'brain_stem'
+    assert vertices_list[2].label == 'amygdala'
+    assert vertices_list[3].label == 'frontal_lobe'
+    assert vertices_list[4].label == 'hypocampus'
 
     # vertices_list = graph_algorithms.bfs(brain_network, 'thalamus')
     # bfs output with root node thalamus
