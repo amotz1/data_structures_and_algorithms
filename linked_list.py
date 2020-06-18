@@ -27,10 +27,10 @@ class LinkedList:
         return self._head_link is None
 
     def get_head_link(self):
-        return self._head_link.value
+        return self._head_link
 
     def get_last_link(self):
-        return self._last_link.value
+        return self._last_link
 
     def _find_link(self, value):
         link = self._head_link
@@ -46,8 +46,16 @@ class LinkedList:
 
     def add_link_at_start(self, value):
         new_link = _Link(value)
-        new_link.set_next(self._head_link)
-        self._head_link = new_link
+        if self._head_link is None:
+            self._head_link = new_link
+            self._last_link = self._head_link
+        elif self.size() == 1:
+                new_link.set_next(self._head_link)
+                self._head_link = new_link
+                self._last_link = new_link.get_next()
+        else:
+            new_link.set_next(self._head_link)
+            self._head_link = new_link
 
     def add_link_after(self, link_to_add, value):
         link_to_find = self._find_link(value)
@@ -85,7 +93,7 @@ class LinkedList:
                 previous_link = previous_link.get_next()
             previous_link.set_next(None)
             self._last_link = previous_link
-            return previous_link.value
+            return link_to_find.value
         elif link_to_find is not None:
             previous_link = self._head_link
             while previous_link.get_next() is not link_to_find:
@@ -109,6 +117,20 @@ class LinkedList:
             assert self._last_link is None
         else:
             assert self._last_link is not None
+
+    def remove_tail(self):
+        if self.size() > 2:
+            previous_link = self._head_link
+            while previous_link.get_next() != self._last_link:
+                previous_link = previous_link.get_next()
+            previous_link.set_next(None)
+            self._last_link = previous_link
+        elif self.size() == 2:
+            self._head_link.set_next(None)
+            self._last_link = self._head_link
+        else:
+            self._head_link = None
+            self._last_link = None
 
     def __iter__(self):
         new_iterator = _LinkedListIterator(self._head_link)
@@ -164,14 +186,18 @@ def test_Linked_List():
     # and if a head link is not present a last link is not present
     my_list.check_invariant()
     # checking that all the links in the linked_list are in the right places
-    my_iterator = my_list.__iter__()
-    assert my_iterator.__next__() == "Yotam"
-    assert my_iterator.__next__() == "Hillel"
-    assert my_iterator.__next__() == "moshe"
-    assert my_iterator.__next__() == "Asaf"
-    for i in my_list:
-        print(i)
+    assert [elem for elem in my_list] == ['Yotam', 'Hillel', 'moshe', 'Asaf']
     assert my_list.size() == 4
+    my_list.remove_tail()
+    assert [elem for elem in my_list] == ['Yotam', 'Hillel', 'moshe']
+    my_list.remove_tail()
+    assert [elem for elem in my_list] == ['Yotam', 'Hillel']
+    my_list.remove_tail()
+    assert [elem for elem in my_list] == ['Yotam']
+    my_list.remove_tail()
+    assert [elem for elem in my_list] == []
+
+
 
 
 test_Linked_List()
