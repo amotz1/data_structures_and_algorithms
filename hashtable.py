@@ -64,8 +64,8 @@ class Hashtable:
             else:
                 hashtable_element = KeyValuePair(key, value)
                 b_a_linked_list = linked_list.LinkedList()
-                b_a_linked_list.add_link_at_end(self.backing_array[index])
-                b_a_linked_list.add_link_at_end(hashtable_element)
+                b_a_linked_list.add_tail(self.backing_array[index])
+                b_a_linked_list.add_tail(hashtable_element)
                 self.backing_array[index] = b_a_linked_list
                 self.size1 += 1
         else:
@@ -78,7 +78,7 @@ class Hashtable:
                     i.value = value
             if not is_key_found:
                 hashtable_element = KeyValuePair(key, value)
-                self.backing_array[index].add_link_at_end(hashtable_element)
+                self.backing_array[index].add_tail(hashtable_element)
                 self.size1 += 1
             self.check_resize()
 
@@ -149,8 +149,8 @@ class Hashtable:
                 for i in self.backing_array[index]:
                     if i.key == key:
                         self.backing_array[index].remove(i)
-                        key = self.backing_array[index].get_head_link().key
-                        value = self.backing_array[index].get_head_link().value
+                        key = self.backing_array[index].get_head_value().key
+                        value = self.backing_array[index].get_head_value().value
                         hashtable_element = KeyValuePair(key, value)
                         self.backing_array[index] = hashtable_element
                         self.size1 -= 1
