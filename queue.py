@@ -7,12 +7,14 @@ class Queue:
         self.size1 = 0
 
     def push(self, value):
-        self.linked_list.add_head(value)
+        self.linked_list.add_tail(value)
         self.size1 += 1
 
     def pop(self):
         element = self.linked_list.remove_head()
         self.size1 -= 1
+        if self.size == 0:
+            return None
         return element
 
     def is_empty(self):
@@ -21,10 +23,16 @@ class Queue:
         else:
             return False
 
+    # def is_dup(self, element):
+    #     for qu_element in self.linked_list:
+    #         if element == qu_element:
+    #             return True
+    #     return False
+
     def show_elements(self):
         element_list = []
         for i in self.linked_list:
-            element_list.append(i.label)
+            element_list.append(i)
         return element_list
 
     def size(self):
@@ -33,13 +41,15 @@ class Queue:
 
 def test_queue():
     queue = Queue()
-    for i in ['marshmel1', 'bamba', 'bisly']:
+    for i in ['marshmelo', 'bamba', 'bisly']:
         queue.push(i)
     for i in ['marshmelo', 'bamba', 'bisly']:
         queue_element = queue.pop()
-        assert queue_element == i
+        assert queue_element.value == i
+    assert queue.is_empty() is True
+    queue.pop() is None
 
 
 
 
-# test_queue()
+test_queue()
