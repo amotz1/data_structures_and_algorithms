@@ -70,7 +70,7 @@ class Hashtable:
                 self.size1 += 1
         else:
             assert type(self.backing_array[index]) == linked_list.LinkedList
-            assert self.backing_array[index].size() >= 2
+            assert self.backing_array[index].compute_size() >= 2
             is_key_found = False
             for i in self.backing_array[index]:
                 if i.key == key:
@@ -94,7 +94,7 @@ class Hashtable:
                 return None
         else:
             assert type(self.backing_array[index]) == linked_list.LinkedList
-            assert self.backing_array[index].size() >= 2
+            assert self.backing_array[index].compute_size() >= 2
             for i in self.backing_array[index]:
                 if i.key == key:
                     return i.value
@@ -116,7 +116,7 @@ class Hashtable:
                 representation.append([self.backing_array[index].key, self.backing_array[index].value])
             else:
                 assert type(self.backing_array[index]) == linked_list.LinkedList
-                assert self.backing_array[index].size() >= 2
+                assert self.backing_array[index].compute_size() >= 2
                 representation.append(index)
                 for i in self.backing_array[index]:
                     representation.append([i.key, i.value])
@@ -136,8 +136,8 @@ class Hashtable:
             else:
                 return False
         elif type(self.backing_array[index]) == linked_list.LinkedList:
-            assert self.backing_array[index].size() >= 2
-            if self.backing_array[index].size() > 2:
+            assert self.backing_array[index].compute_size() >= 2
+            if self.backing_array[index].compute_size() > 2:
                 for i in self.backing_array[index]:
                     if i.key == key:
                         self.backing_array[index].remove(i)
@@ -241,7 +241,7 @@ class HashtableIterator:
                     return
                 else:
                     assert isinstance(element, linked_list.LinkedList)
-                    assert element.size() >= 1, "This code relies on not having an empty list in the backing array"
+                    assert element.compute_size() >= 1, "This code relies on not having an empty list in the backing array"
                     self.index = self.index + 1
                     self.list_iter = iter(element)
                     # Call advance to get current from the list iterator we just found.
@@ -430,6 +430,7 @@ def test_big_hashtable():
 
 
 test_big_hashtable()
+
 
 # TODO to make sure that the big tests test for updates
 # TODO refactoring the check_resize method

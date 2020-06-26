@@ -3,9 +3,7 @@ import stack
 import queue
 
 
-# implementation of an undirected graph, the graph supports vertices and edges
-#  added a partial implementation of a stack and queue class and an algorithm class with
-#  partial implementation of a dfs recursive dfs and bfs methods
+#  partial implementation of a dfs, recursive dfs and bfs methods
 
 
 class Graph:
@@ -65,47 +63,52 @@ class Edge:
 
 class Algorithms:
 
-    def dfs(self, graph, vertex_label):
-        vertex = graph.get_vertex(vertex_label)
+    def dfs(self, graph, vertex_obj):
+        vertex = graph.get_vertex(vertex_obj.label)
         vertices_list = []
         seen = hashtable.Hashtable()
+        dup_hash = hashtable.Hashtable()
         st = stack.Stack()
         st.push(vertex)
         while not st.is_empty():
             vertex = st.pop()
-            vertices_list.append(vertex)
-            # TODO replacing vertex object in seen hashtable with dummy variable
-            seen.put(vertex.label, vertex)
+            if dup_hash.get(vertex.label) is not vertex:
+                vertices_list.append(vertex)
+            dup_hash.put(vertex.label, 'dummy')
+            seen.put(vertex.label, 'dummy')
             neighbors_list = vertex.get_neighbors()
             for vertex in neighbors_list:
-                if seen.get(vertex.label) is not vertex:
+                if seen.get(vertex.label) is None and dup_hash.get(vertex.label) is None:
                     st.push(vertex)
         return vertices_list
 
-    def recursive_dfs(self, graph, vertex_label):
+    def recursive_dfs(self, graph, vertex_obj):
         seen = hashtable.Hashtable()
         vertices_list = []
-        self._recursive_dfs(graph, vertex_label, vertices_list, seen)
+        self._recursive_dfs(graph, vertex_obj, vertices_list, seen)
         return vertices_list
 
-    def _recursive_dfs(self, graph, vertex_label, vertices_list, seen):
-        vertex = graph.get_vertex(vertex_label)
+    def _recursive_dfs(self, graph, vertex_obj, vertices_list, seen):
+        vertex = graph.get_vertex(vertex_obj.label)
         vertices_list.append(vertex)
         seen.put(vertex.label, vertex)
         neighbors_list = vertex.get_neighbors()
         for vertex in neighbors_list:
             if seen.get(vertex.label) is not vertex:
-                self._recursive_dfs(graph, vertex.label, vertices_list, seen)
+                self._recursive_dfs(graph, vertex, vertices_list, seen)
 
-    def bfs(self, graph, vertex_label):
-        vertex = graph.get_vertex(vertex_label)
+    def bfs(self, graph, vertex_obj):
+        vertex = graph.get_vertex(vertex_obj.label)
         vertices_list = []
+        dup_hash = hashtable.Hashtable()
         seen = hashtable.Hashtable()
         qu = queue.Queue()
         qu.push(vertex)
         while not qu.is_empty():
             vertex = qu.pop().value
-            vertices_list.append(vertex)
+            if dup_hash.get(vertex.label) is not vertex:
+                vertices_list.append(vertex)
+            dup_hash.put(vertex.label, vertex)
             seen.put(vertex.label, vertex)
             neighbors_list = vertex.get_neighbors()
             for vertex in neighbors_list:
@@ -146,8 +149,8 @@ def test_Graph():
     assert frontal_lobe.neighbors_list[1].label == 'amygdala'
     assert frontal_lobe.neighbors_list[2].label == 'hypocampus'
     graph_algorithms = Algorithms()
-    graph_algorithms.dfs(brain_network, 'thalamus')
-    vertices_list = graph_algorithms.dfs(brain_network, 'thalamus')
+    thalamus = brain_network.get_vertex('thalamus')
+    vertices_list = graph_algorithms.dfs(brain_network, thalamus)
 
     # dfs output with root node thalamus
     assert vertices_list[0].label == 'thalamus'
@@ -155,12 +158,8 @@ def test_Graph():
     assert vertices_list[2].label == 'hypocampus'
     assert vertices_list[3].label == 'brain_stem'
     assert vertices_list[4].label == 'amygdala'
-    assert not vertices_list[5].label
-
-    graph_algorithms.recursive_dfs(brain_network, 'thalamus')
-    vertices_list = graph_algorithms.recursive_dfs(brain_network, 'thalamus')
+    vertices_list = graph_algorithms.recursive_dfs(brain_network, thalamus)
     # dfs output with root node thalamus
-    graph_algorithms.recursive_dfs(brain_network, 'thalamus')
     assert vertices_list[0].label == 'thalamus'
     assert vertices_list[1].label == 'brain_stem'
     assert vertices_list[2].label == 'amygdala'
@@ -168,29 +167,32 @@ def test_Graph():
     assert vertices_list[4].label == 'hypocampus'
 
     # bfs output with root node thalamus
-    # vertices_list = graph_algorithms.bfs(brain_network, 'thalamus')
-    # assert vertices_list[0].label == 'thalamus'
-    # assert vertices_list[1].label == 'brain_stem'
-    # assert vertices_list[2].label == 'frontal_lobe'
-    # assert vertices_list[3].label == 'amygdala'
-    # assert vertices_list[4].label == 'hypocampus'
+    vertices_list = graph_algorithms.bfs(brain_network, thalamus)
+    assert vertices_list[0].label == 'thalamus'
+    assert vertices_list[1].label == 'brain_stem'
+    assert vertices_list[2].label == 'frontal_lobe'
+    assert vertices_list[3].label == 'amygdala'
+    assert vertices_list[4].label == 'hypocampus'
 
-    # TODO: solving the problem with duplicates in queue and stack
-    # TODO change all occurrences of vertex label in my functions for vertex objects
+    # TODO adding tests that verify that now i fixed the bug of too many vertices in the lists of dfs and bfs methods
+    # TODO making dfs and recursive dfs work in the same way and check them on more root nodes
+    # TODO making some more graph tests
+    #  (2 isolated vertices with no neighbors and 2 isolated subgraphs with two neighbors)
+    # TODO making changes so i can call my algotihms without making an instance of an algorithm class
 
-
-
-# assert brain_network.edges_weights_sum('amygdala') == 8
-# assert brain_network.edges_weights_sum('frontal_lobe') == 0
-# assert brain_network.edges_weights_sum('hypocampus') == 10
-# assert brain_network.edges_weights_sum('thalamus') == 5
-# assert brain_network. edges_weights_sum('brain_stem') == 13
-# neighbors_list = brain_network.get_neighbors('brain_stem')
-# assert neighbors_list[0].get_label() == 'hypocampus'
-# assert neighbors_list[1].get_label() == 'thalamus'
-# assert neighbors_list[2].get_label() == 'amygdala'
-# assert brain_network.most_connected_path('brain_stem','frontal_lobe') == ['brain_stem' , 'hypocampus', 'frontal_lobe', 15]
-# assert brain_network.least_connected_path('brain_stem','frontal_lobe') == ['brain_stem', 'thalamus', 'frontal_lobe', 8]
 #
-
+#
+# # assert brain_network.edges_weights_sum('amygdala') == 8
+# # assert brain_network.edges_weights_sum('frontal_lobe') == 0
+# # assert brain_network.edges_weights_sum('hypocampus') == 10
+# # assert brain_network.edges_weights_sum('thalamus') == 5
+# # assert brain_network. edges_weights_sum('brain_stem') == 13
+# # neighbors_list = brain_network.get_neighbors('brain_stem')
+# # assert neighbors_list[0].get_label() == 'hypocampus'
+# # assert neighbors_list[1].get_label() == 'thalamus'
+# # assert neighbors_list[2].get_label() == 'amygdala'
+# # assert brain_network.most_connected_path('brain_stem','frontal_lobe') == ['brain_stem' , 'hypocampus', 'frontal_lobe', 15]
+# # assert brain_network.least_connected_path('brain_stem','frontal_lobe') == ['brain_stem', 'thalamus', 'frontal_lobe', 8]
+# #
+#
 test_Graph()

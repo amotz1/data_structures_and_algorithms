@@ -22,6 +22,7 @@ class LinkedList:
     def __init__(self):
         self._head = None
         self._tail = None
+        self.size = 0
 
     def is_empty(self):
         return self._head is None
@@ -41,7 +42,7 @@ class LinkedList:
                 link = link.get_next()
         return None
 
-    def find_link(self, value: str) -> bool:
+    def find_link(self, value):
         return self._find_link(value)
 
     def add_head(self, value):
@@ -49,9 +50,11 @@ class LinkedList:
         if self._head is None:
             self._head = new_link
             self._tail = self._head
+            self.size += 1
         else:
             new_link.set_next(self._head)
             self._head = new_link
+            self.size += 1
 
     def add_link_after(self, link_to_add, value):
         link_to_find = self._find_link(value)
@@ -59,10 +62,12 @@ class LinkedList:
             new_link = _Link(link_to_add)
             self._tail.set_next(new_link)
             self._tail = new_link
+            self.size += 1
         elif link_to_find != self._tail and link_to_find is not None:
             new_link = _Link(link_to_add)
             new_link.set_next(link_to_find.get_next())
             link_to_find.set_next(new_link)
+            self.size += 1
         else:
             print(value, "is not in the list so you will better use an element that is in it")
 
@@ -71,16 +76,19 @@ class LinkedList:
         if self._head is None:
             self._head = new_link
             self._tail = self._head
+            self.size += 1
         else:
             self._tail.set_next(new_link)
             self._tail = new_link
             new_link.set_next(None)
+            self.size += 1
 
-    def remove(self, value: int) -> _Link:
+    def remove(self, value):
         link_to_find = self._find_link(value)
         if link_to_find == self._head:
             self._head = link_to_find.get_next()
             link_to_find.set_next(None)
+            self.size -= 1
             return link_to_find.value
         elif link_to_find == self._tail:
             previous_link = self._head
@@ -89,6 +97,7 @@ class LinkedList:
                 previous_link = previous_link.get_next()
             previous_link.set_next(None)
             self._tail = previous_link
+            self.size -= 1
             return link_to_find.value
         elif link_to_find is not None:
             previous_link = self._head
@@ -96,17 +105,13 @@ class LinkedList:
                 previous_link = previous_link.get_next()
             previous_link.set_next(link_to_find.get_next())
             link_to_find.set_next(None)
+            self.size -= 1
             return link_to_find.value
         else:
             return None
 
-    def size(self):
-        count_links = 0
-        link = self._head
-        while link is not None:
-            link = link.get_next()
-            count_links += 1
-        return count_links
+    def compute_size(self):
+        return self.size
 
     def check_invariant(self):
         if self._head is None:
@@ -115,15 +120,17 @@ class LinkedList:
             assert self._tail is not None
 
     def remove_head(self):
-        if self.size() > 1:
+        if self.compute_size() > 1:
             link = self._head.get_next()
             temp = self._head
             self._head = link
+            self.size -= 1
             return temp
         else:
             temp = self._head
             self._head = None
             self._tail = None
+            self.size -= 1
             return temp
 
     def __iter__(self):
@@ -181,7 +188,7 @@ def test_Linked_List():
     my_list.check_invariant()
     # checking that all the links in the linked_list are in the right places
     assert [elem for elem in my_list] == ['Yotam', 'Hillel', 'moshe', 'Asaf']
-    assert my_list.size() == 4
+    assert my_list.compute_size() == 4
     my_list.remove_head()
     assert [elem for elem in my_list] == ['Hillel', 'moshe', 'Asaf']
     my_list.remove_head()

@@ -33,6 +33,14 @@ class Stack:
             return element
         return None
 
+    def create_copy_of_data(self):
+        element_list = []
+        for i in self.array:
+            if i is not None:
+                element_list.append(i.label)
+        return element_list
+
+
 
 def test_stack():
 
