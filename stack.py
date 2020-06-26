@@ -17,12 +17,6 @@ class Stack:
         else:
             return False
 
-    # def is_dup(self, element):
-    #     for st_element in self.array:
-    #         if element == st_element:
-    #             return True
-    #     return False
-
     def pop(self):
         # return None if stack is empty
         while not self.is_empty():
@@ -39,7 +33,6 @@ class Stack:
             if i is not None:
                 element_list.append(i.label)
         return element_list
-
 
 
 def test_stack():

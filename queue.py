@@ -23,12 +23,6 @@ class Queue:
         else:
             return False
 
-    # def is_dup(self, element):
-    #     for qu_element in self.linked_list:
-    #         if element == qu_element:
-    #             return True
-    #     return False
-
     def create_copy_of_data(self):
         element_list = []
         for i in self.linked_list:
