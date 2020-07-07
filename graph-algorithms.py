@@ -70,6 +70,8 @@ class Algorithms:
         st.push(root)
         while not st.is_empty():
             vertex = st.pop()
+            if seen.get(vertex.label) is not None:
+                continue
             seen.put(vertex.label, 'dummy')
             vertices_list.append(vertex)
             for neighbor in vertex.get_neighbors():
@@ -77,39 +79,34 @@ class Algorithms:
                     st.push(neighbor)
         return vertices_list
 
-    def recursive_dfs(self, graph, vertex_obj):
+    def recursive_dfs(self, graph, vertex):
         seen = hashtable.Hashtable()
         vertices_list = []
-        self._recursive_dfs(graph, vertex_obj, vertices_list, seen)
+        self._recursive_dfs(graph, vertex, vertices_list, seen)
         return vertices_list
 
-    def _recursive_dfs(self, graph, vertex_obj, vertices_list, seen):
-        vertex = graph.get_vertex(vertex_obj.label)
+    def _recursive_dfs(self, graph, vertex, vertices_list, seen):
         vertices_list.append(vertex)
-        seen.put(vertex.label, vertex)
-        neighbors_list = vertex.get_neighbors()
-        for vertex in neighbors_list:
-            if seen.get(vertex.label) is not vertex:
-                self._recursive_dfs(graph, vertex, vertices_list, seen)
+        seen.put(vertex.label, 'dummy')
+        for neighbor in vertex.get_neighbors():
+            if seen.get(neighbor.label) is None:
+                self._recursive_dfs(graph, neighbor, vertices_list, seen)
 
     @staticmethod
-    def bfs(graph, vertex_obj):
-        vertex = graph.get_vertex(vertex_obj.label)
+    def bfs(root):
         vertices_list = []
-        dup_hash = hashtable.Hashtable()
         seen = hashtable.Hashtable()
         qu = queue.Queue()
-        qu.push(vertex)
+        qu.push(root)
         while not qu.is_empty():
             vertex = qu.pop().value
-            if dup_hash.get(vertex.label) is not vertex:
-                vertices_list.append(vertex)
-            dup_hash.put(vertex.label, vertex)
-            seen.put(vertex.label, vertex)
-            neighbors_list = vertex.get_neighbors()
-            for vertex in neighbors_list:
-                if seen.get(vertex.label) is not vertex:
-                    qu.push(vertex)
+            if seen.get(vertex.label) is not None:
+                continue
+            seen.put(vertex.label, 'dummy')
+            vertices_list.append(vertex)
+            for neighbor in vertex.get_neighbors():
+                if seen.get(neighbor.label) is None:
+                    qu.push(neighbor)
         return vertices_list
 
 
@@ -164,15 +161,14 @@ def test_Graph():
     assert vertices_list[4].label == 'hypocampus'
 
     # bfs output with root node thalamus
-    vertices_list = Algorithms.bfs(brain_network, thalamus)
+    vertices_list = Algorithms.bfs(thalamus)
     assert vertices_list[0].label == 'thalamus'
     assert vertices_list[1].label == 'brain_stem'
     assert vertices_list[2].label == 'frontal_lobe'
     assert vertices_list[3].label == 'amygdala'
     assert vertices_list[4].label == 'hypocampus'
+    assert len(vertices_list) == 5
 
-    # TODO fixing the bug: the size of the vertices_list is more then 5 elements (assertion failed)
-    # TODO adding tests that verify that now i fixed the bug of too many vertices in the lists of dfs and bfs methods
     # TODO making dfs and recursive dfs work in the same way and check them on more root nodes
     # TODO making some more graph tests
     #  (2 isolated vertices with no neighbors and 2 isolated subgraphs with two neighbors)
