@@ -1,9 +1,10 @@
 import hashtable
 import stack
 import queue
+import mergesort
 
 
-#  partial implementation of a dfs, recursive dfs and bfs methods
+#  implementation of a dfs, recursive dfs and bfs on an undirected graph
 
 
 class Graph:
@@ -88,7 +89,13 @@ class Algorithms:
     def _recursive_dfs(self, graph, vertex, vertices_list, seen):
         vertices_list.append(vertex)
         seen.put(vertex.label, 'dummy')
-        for neighbor in vertex.get_neighbors():
+        # making a copy to vertex.get_neighbors() because list reverse method works in-place
+        # so i reverse a copy of vertex.get_neighbors() and use it instead
+        neighbors_list_copy = list(map(lambda x: x, vertex.get_neighbors()))
+        # reversing the neighbors_list_copy to make recursive dfs and dfs function
+        # output the same vertices
+        neighbors_list_copy.reverse()
+        for neighbor in neighbors_list_copy:
             if seen.get(neighbor.label) is None:
                 self._recursive_dfs(graph, neighbor, vertices_list, seen)
 
@@ -136,45 +143,60 @@ def test_Graph():
         # every vertex  that we created is in the graph
         assert brain_network.get_vertex(vertex).label == vertex
     frontal_lobe = brain_network.get_vertex('frontal_lobe')
-
+    thalamus = brain_network.get_vertex('thalamus')
+    amygdala = brain_network.get_vertex('amygdala')
+    hypocampus = brain_network.get_vertex('hypocampus')
+    brain_stem = brain_network.get_vertex('brain_stem')
     # vertex contain its neighbors
     assert frontal_lobe.neighbors_list[0].label == 'thalamus'
     assert frontal_lobe.neighbors_list[1].label == 'amygdala'
     assert frontal_lobe.neighbors_list[2].label == 'hypocampus'
-    graph_algorithms = Algorithms()
-    thalamus = brain_network.get_vertex('thalamus')
-    vertices_list = Algorithms.dfs(thalamus)
 
-    # dfs output with root node thalamus
-    assert vertices_list[0].label == 'thalamus'
-    assert vertices_list[1].label == 'frontal_lobe'
-    assert vertices_list[2].label == 'hypocampus'
-    assert vertices_list[3].label == 'brain_stem'
-    assert vertices_list[4].label == 'amygdala'
-    assert len(vertices_list) == 5
-    vertices_list = graph_algorithms.recursive_dfs(brain_network, thalamus)
-    # dfs output with root node thalamus
-    assert vertices_list[0].label == 'thalamus'
-    assert vertices_list[1].label == 'brain_stem'
-    assert vertices_list[2].label == 'amygdala'
-    assert vertices_list[3].label == 'frontal_lobe'
-    assert vertices_list[4].label == 'hypocampus'
+    graph_algorithms = Algorithms()
+    dfs_vertices = Algorithms.dfs(thalamus)
+    rec_dfs_vertices = graph_algorithms.recursive_dfs(brain_network, thalamus)
+    # dfs and recursive dfs output with root node thalamus
+    assert list(map(lambda x: x.label, dfs_vertices)) == ['thalamus', 'frontal_lobe', 'hypocampus', 'brain_stem',
+                                                          'amygdala']
+
+    # checking that the output of dfs and recursive dfs are the same
+    assert rec_dfs_vertices == dfs_vertices
+
+    # checking dfs and recursive dfs for other nodes
+    dfs_vertices = Algorithms.dfs(frontal_lobe)
+    rec_dfs_vertices = graph_algorithms.recursive_dfs(brain_network, frontal_lobe)
+    assert [vertex.label for vertex in dfs_vertices] == ['frontal_lobe', 'hypocampus', 'brain_stem',
+                                                         'amygdala', 'thalamus']
+    assert rec_dfs_vertices == dfs_vertices
+    dfs_vertices = Algorithms.dfs(amygdala)
+    rec_dfs_vertices = graph_algorithms.recursive_dfs(brain_network, amygdala)
+    assert list(map(lambda x: x.label, dfs_vertices)) == ['amygdala', 'frontal_lobe', 'hypocampus', 'brain_stem',
+                                                          'thalamus']
+    assert dfs_vertices == rec_dfs_vertices
+    dfs_vertices = Algorithms.dfs(brain_stem)
+    rec_dfs_vertices = graph_algorithms.recursive_dfs(brain_network, brain_stem)
+    assert [vertex.label for vertex in dfs_vertices] == ['brain_stem', 'hypocampus', 'frontal_lobe', 'amygdala',
+                                                         'thalamus']
+    assert (dfs_vertices == rec_dfs_vertices)
+    dfs_vertices = Algorithms.dfs(hypocampus)
+    rec_dfs_vertices = graph_algorithms.recursive_dfs(brain_network, hypocampus)
+    assert list(map(lambda x: x.label, dfs_vertices)) == ['hypocampus', 'frontal_lobe', 'amygdala',
+                                                          'brain_stem', 'thalamus']
+    assert rec_dfs_vertices == dfs_vertices
 
     # bfs output with root node thalamus
-    vertices_list = Algorithms.bfs(thalamus)
-    assert vertices_list[0].label == 'thalamus'
-    assert vertices_list[1].label == 'brain_stem'
-    assert vertices_list[2].label == 'frontal_lobe'
-    assert vertices_list[3].label == 'amygdala'
-    assert vertices_list[4].label == 'hypocampus'
-    assert len(vertices_list) == 5
+    bfs_vertices = Algorithms.bfs(thalamus)
+    assert ([vertex.label for vertex in bfs_vertices] == ['thalamus', 'brain_stem', 'frontal_lobe',
+                                                          'amygdala', 'hypocampus'])
 
-    # TODO making dfs and recursive dfs work in the same way and check them on more root nodes
+    # sorting bfs output is equivalent to sorting dfs output (using our good old mergesort :))
+    assert (mergesort.sort([vertex.label for vertex in bfs_vertices]) == mergesort.sort([vertex.label for vertex
+                                                                                         in dfs_vertices]))
+
     # TODO making some more graph tests
     #  (2 isolated vertices with no neighbors and 2 isolated subgraphs with two neighbors)
-    # TODO making changes so i can call my algotihms without making an instance of an algorithm class
+    # TODO making changes so i can call my algorithms without making an instance of an algorithm class
     #  (understanding recursive case)
-    # TODO sorting the vertices_list labels so i can show that dfs and bfs output is the same in a connected graph
 
 
 #
