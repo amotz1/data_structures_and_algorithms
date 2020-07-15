@@ -52,7 +52,10 @@ class Vertex:
         return self.label
 
     def get_neighbors(self):
-        return self.neighbors_list
+        # making a copy to vertex.get_neighbors() because list reverse method works in-place
+        # so i reverse a copy of vertex.get_neighbors() and use it instead
+        neighbors_list_copy = list(map(lambda x: x, self.neighbors_list))
+        return neighbors_list_copy
 
 
 class Edge:
@@ -80,24 +83,23 @@ class Algorithms:
                     st.push(neighbor)
         return vertices_list
 
-    def recursive_dfs(self, graph, vertex):
-        seen = hashtable.Hashtable()
-        vertices_list = []
-        self._recursive_dfs(graph, vertex, vertices_list, seen)
-        return vertices_list
-
-    def _recursive_dfs(self, graph, vertex, vertices_list, seen):
+    @staticmethod
+    def _recursive_dfs(vertex, vertices_list, seen):
         vertices_list.append(vertex)
         seen.put(vertex.label, 'dummy')
-        # making a copy to vertex.get_neighbors() because list reverse method works in-place
-        # so i reverse a copy of vertex.get_neighbors() and use it instead
-        neighbors_list_copy = list(map(lambda x: x, vertex.get_neighbors()))
         # reversing the neighbors_list_copy to make recursive dfs and dfs function
         # output the same vertices
-        neighbors_list_copy.reverse()
-        for neighbor in neighbors_list_copy:
+        neighbor_list = vertex.get_neighbors().reverse()
+        for neighbor in neighbor_list:
             if seen.get(neighbor.label) is None:
-                self._recursive_dfs(graph, neighbor, vertices_list, seen)
+                Algorithms._recursive_dfs(neighbor, vertices_list, seen)
+
+    @ staticmethod
+    def recursive_dfs(vertex):
+        seen = hashtable.Hashtable()
+        vertices_list = []
+        Algorithms._recursive_dfs(vertex, vertices_list, seen)
+        return vertices_list
 
     @staticmethod
     def bfs(root):
@@ -134,6 +136,13 @@ def create_test_graph():
     brain_network.create_edge(hypocampus, frontal_lobe, 10)
     return brain_network
 
+# def create_test_graph_1():
+#     isolated_cities = Graph()
+#     for vertex in ['jerusalem', 'haifa']:
+#         isolated_cities.create_vertex(vertex)
+
+
+
 
 def test_Graph():
     brain_network = create_test_graph()
@@ -154,7 +163,7 @@ def test_Graph():
 
     graph_algorithms = Algorithms()
     dfs_vertices = Algorithms.dfs(thalamus)
-    rec_dfs_vertices = graph_algorithms.recursive_dfs(brain_network, thalamus)
+    rec_dfs_vertices = Algorithms.recursive_dfs(thalamus)
     # dfs and recursive dfs output with root node thalamus
     assert list(map(lambda x: x.label, dfs_vertices)) == ['thalamus', 'frontal_lobe', 'hypocampus', 'brain_stem',
                                                           'amygdala']
@@ -164,22 +173,22 @@ def test_Graph():
 
     # checking dfs and recursive dfs for other nodes
     dfs_vertices = Algorithms.dfs(frontal_lobe)
-    rec_dfs_vertices = graph_algorithms.recursive_dfs(brain_network, frontal_lobe)
+    rec_dfs_vertices = Algorithms.recursive_dfs(frontal_lobe)
     assert [vertex.label for vertex in dfs_vertices] == ['frontal_lobe', 'hypocampus', 'brain_stem',
                                                          'amygdala', 'thalamus']
     assert rec_dfs_vertices == dfs_vertices
     dfs_vertices = Algorithms.dfs(amygdala)
-    rec_dfs_vertices = graph_algorithms.recursive_dfs(brain_network, amygdala)
+    rec_dfs_vertices = Algorithms.recursive_dfs(amygdala)
     assert list(map(lambda x: x.label, dfs_vertices)) == ['amygdala', 'frontal_lobe', 'hypocampus', 'brain_stem',
                                                           'thalamus']
     assert dfs_vertices == rec_dfs_vertices
     dfs_vertices = Algorithms.dfs(brain_stem)
-    rec_dfs_vertices = graph_algorithms.recursive_dfs(brain_network, brain_stem)
+    rec_dfs_vertices = Algorithms.recursive_dfs(brain_stem)
     assert [vertex.label for vertex in dfs_vertices] == ['brain_stem', 'hypocampus', 'frontal_lobe', 'amygdala',
                                                          'thalamus']
     assert (dfs_vertices == rec_dfs_vertices)
     dfs_vertices = Algorithms.dfs(hypocampus)
-    rec_dfs_vertices = graph_algorithms.recursive_dfs(brain_network, hypocampus)
+    rec_dfs_vertices = Algorithms.recursive_dfs(hypocampus)
     assert list(map(lambda x: x.label, dfs_vertices)) == ['hypocampus', 'frontal_lobe', 'amygdala',
                                                           'brain_stem', 'thalamus']
     assert rec_dfs_vertices == dfs_vertices
@@ -195,8 +204,7 @@ def test_Graph():
 
     # TODO making some more graph tests
     #  (2 isolated vertices with no neighbors and 2 isolated subgraphs with two neighbors)
-    # TODO making changes so i can call my algorithms without making an instance of an algorithm class
-    #  (understanding recursive case)
+
 
 
 #
