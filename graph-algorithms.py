@@ -52,9 +52,9 @@ class Vertex:
         return self.label
 
     def get_neighbors(self):
-        # making a copy to vertex.get_neighbors() because list reverse method works in-place
-        # so i reverse a copy of vertex.get_neighbors() and use it instead
-        neighbors_list_copy = list(map(lambda x: x, self.neighbors_list))
+        # making a copy to vertex.get_neighbors() because
+        # messing with this will break the graph integrity
+        neighbors_list_copy = list(self.neighbors_list)
         return neighbors_list_copy
 
 
