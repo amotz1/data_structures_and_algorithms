@@ -89,8 +89,8 @@ class Algorithms:
         seen.put(vertex.label, 'dummy')
         # reversing the neighbors_list_copy to make recursive dfs and dfs function
         # output the same vertices
-        neighbor_list = vertex.get_neighbors().reverse()
-        for neighbor in neighbor_list:
+        vertex.get_neighbors().reverse()
+        for neighbor in vertex.get_neighbors():
             if seen.get(neighbor.label) is None:
                 Algorithms._recursive_dfs(neighbor, vertices_list, seen)
 
