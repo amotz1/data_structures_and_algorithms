@@ -89,8 +89,9 @@ class Algorithms:
         seen.put(vertex.label, 'dummy')
         # reversing the neighbors_list_copy to make recursive dfs and dfs function
         # output the same vertices
-        vertex.get_neighbors().reverse()
-        for neighbor in vertex.get_neighbors():
+        neighbor_list = vertex.get_neighbors()
+        neighbor_list.reverse()
+        for neighbor in neighbor_list:
             if seen.get(neighbor.label) is None:
                 Algorithms._recursive_dfs(neighbor, vertices_list, seen)
 
@@ -136,12 +137,25 @@ def create_test_graph():
     brain_network.create_edge(hypocampus, frontal_lobe, 10)
     return brain_network
 
-# def create_test_graph_1():
-#     isolated_cities = Graph()
-#     for vertex in ['jerusalem', 'haifa']:
-#         isolated_cities.create_vertex(vertex)
+
+def create_test_graph_1():
+    isolated_cities = Graph()
+    for city in ['jerusalem', 'haifa']:
+        isolated_cities.create_vertex(city)
+    return isolated_cities
 
 
+def create_test_graph_2():
+    two_pairs_of_cities = Graph()
+    for city in ['jerusalem', 'haifa', 'rishon', 'hulon']:
+        two_pairs_of_cities.create_vertex(city)
+    hulon = two_pairs_of_cities.get_vertex('hulon')
+    rishon = two_pairs_of_cities.get_vertex('rishon')
+    haifa = two_pairs_of_cities.get_vertex('haifa')
+    jerusalem = two_pairs_of_cities.get_vertex('jerusalem')
+    two_pairs_of_cities.create_edge(haifa, rishon, 3)
+    two_pairs_of_cities.create_edge(jerusalem, hulon, 5)
+    return two_pairs_of_cities
 
 
 def test_Graph():
@@ -161,7 +175,6 @@ def test_Graph():
     assert frontal_lobe.neighbors_list[1].label == 'amygdala'
     assert frontal_lobe.neighbors_list[2].label == 'hypocampus'
 
-    graph_algorithms = Algorithms()
     dfs_vertices = Algorithms.dfs(thalamus)
     rec_dfs_vertices = Algorithms.recursive_dfs(thalamus)
     # dfs and recursive dfs output with root node thalamus
@@ -201,9 +214,31 @@ def test_Graph():
     # sorting bfs output is equivalent to sorting dfs output (using our good old mergesort :))
     assert (mergesort.sort([vertex.label for vertex in bfs_vertices]) == mergesort.sort([vertex.label for vertex
                                                                                          in dfs_vertices]))
+    isolated_cities = create_test_graph_1()
+    haifa = isolated_cities.get_vertex('haifa')
+    jerusalem = isolated_cities.get_vertex('jerusalem')
+    for city in [haifa, jerusalem]:
+        dfs_vertices = Algorithms.dfs(city)
+        rec_dfs_vertices = Algorithms.recursive_dfs(city)
+        bfs_vertices = Algorithms.bfs(city)
+        assert dfs_vertices == bfs_vertices
+        assert rec_dfs_vertices == dfs_vertices
 
-    # TODO making some more graph tests
-    #  (2 isolated vertices with no neighbors and 2 isolated subgraphs with two neighbors)
+    two_pairs_of_cities = create_test_graph_2()
+    haifa = two_pairs_of_cities.get_vertex('haifa')
+    jerusalem = two_pairs_of_cities.get_vertex('jerusalem')
+    dfs_vertices_haifa = Algorithms.dfs(haifa)
+    dfs_vertices_jerusalem = Algorithms.dfs(jerusalem)
+    assert list(map(lambda x: x.label, dfs_vertices_haifa)) == ['haifa', 'rishon']
+    assert [vertex.label for vertex in dfs_vertices_jerusalem] == ['jerusalem', 'hulon']
+    for city in [haifa, jerusalem]:
+        dfs_vertices = Algorithms.dfs(city)
+        rec_dfs_vertices = Algorithms.recursive_dfs(city)
+        bfs_vertices = Algorithms.bfs(city)
+        assert dfs_vertices == bfs_vertices
+        assert rec_dfs_vertices == dfs_vertices
+
+
 
 
 
