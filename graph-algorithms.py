@@ -5,6 +5,7 @@ import mergesort
 
 
 #  implementation of a dfs, recursive dfs and bfs on an undirected graph
+#  preliminary work for a future shortest path algorithm (test graph and some tests)
 
 
 class Graph:
@@ -95,7 +96,7 @@ class Algorithms:
             if seen.get(neighbor.label) is None:
                 Algorithms._recursive_dfs(neighbor, vertices_list, seen)
 
-    @ staticmethod
+    @staticmethod
     def recursive_dfs(vertex):
         seen = hashtable.Hashtable()
         vertices_list = []
@@ -157,6 +158,7 @@ def create_test_graph_2():
     two_pairs_of_cities.create_edge(jerusalem, hulon, 5)
     return two_pairs_of_cities
 
+
 def create_test_graph_3():
     israel_cities = Graph()
     for city in ['haifa', 'rishon', 'hulon', 'beer_sheva', 'naharia', 'eilat']:
@@ -177,6 +179,7 @@ def create_test_graph_3():
     israel_cities.create_edge(naharia, beer_sheva, 20)
     israel_cities.create_edge(beer_sheva, eilat, 90)
     return israel_cities
+
 
 def test_Graph():
     brain_network = create_test_graph()
@@ -261,16 +264,14 @@ def test_Graph():
     haifa = israel_cities.get_vertex('haifa')
     rishon = israel_cities.get_vertex('rishon')
     eilat = israel_cities.get_vertex('eilat')
-    shortest_path = Algorithm.shortest_path(haifa, haifa)
-    assert shortest_path == 0
-    shortest_path = Algorithm.shortest_path(haifa, rishon)
-    assert shortest_path == 40
-    shortest_path = Algorithm.shortest_path(haifa, eilat)
-    assert shortest_path == 90
+    # shortest_path = Algorithm.shortest_path(haifa, haifa)
+    # assert shortest_path == 0
+    # shortest_path = Algorithm.shortest_path(haifa, rishon)
+    # assert shortest_path == 40
+    # shortest_path = Algorithm.shortest_path(haifa, eilat)
+    # assert shortest_path == 90
 
-
-
-
+    # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
 
 
 #
