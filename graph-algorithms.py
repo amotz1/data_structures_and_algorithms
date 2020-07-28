@@ -1,6 +1,6 @@
 import hashtable
 import stack
-import queue
+import queue1
 import mergesort
 
 
@@ -106,7 +106,7 @@ class Algorithms:
     def bfs(root):
         vertices_list = []
         seen = hashtable.Hashtable()
-        qu = queue.Queue()
+        qu = queue1.Queue()
         qu.push(root)
         while not qu.is_empty():
             vertex = qu.pop().value
@@ -157,6 +157,26 @@ def create_test_graph_2():
     two_pairs_of_cities.create_edge(jerusalem, hulon, 5)
     return two_pairs_of_cities
 
+def create_test_graph_3():
+    israel_cities = Graph()
+    for city in ['haifa', 'rishon', 'hulon', 'beer_sheva', 'naharia', 'eilat']:
+        israel_cities.create_vertex(city)
+    hulon = israel_cities.get_vertex('hulon')
+    rishon = israel_cities.get_vertex('rishon')
+    haifa = israel_cities.get_vertex('haifa')
+    beer_sheva = israel_cities.get_vertex('beer_sheva')
+    naharia = israel_cities.get_vertex('naharia')
+    eilat = israel_cities.get_vertex('eilat')
+    israel_cities.create_edge(haifa, hulon, 25)
+    israel_cities.create_edge(haifa, eilat, 100)
+    israel_cities.create_edge(haifa, rishon, 40)
+    israel_cities.create_edge(hulon, rishon, 50)
+    israel_cities.create_edge(hulon, naharia, 60)
+    israel_cities.create_edge(rishon, beer_sheva, 20)
+    israel_cities.create_edge(naharia, eilat, 10)
+    israel_cities.create_edge(naharia, beer_sheva, 20)
+    israel_cities.create_edge(beer_sheva, eilat, 90)
+    return israel_cities
 
 def test_Graph():
     brain_network = create_test_graph()
@@ -237,6 +257,17 @@ def test_Graph():
         bfs_vertices = Algorithms.bfs(city)
         assert dfs_vertices == bfs_vertices
         assert rec_dfs_vertices == dfs_vertices
+    israel_cities = create_test_graph_3()
+    haifa = israel_cities.get_vertex('haifa')
+    rishon = israel_cities.get_vertex('rishon')
+    eilat = israel_cities.get_vertex('eilat')
+    shortest_path = Algorithm.shortest_path(haifa, haifa)
+    assert shortest_path == 0
+    shortest_path = Algorithm.shortest_path(haifa, rishon)
+    assert shortest_path == 40
+    shortest_path = Algorithm.shortest_path(haifa, eilat)
+    assert shortest_path == 90
+
 
 
 
@@ -245,7 +276,7 @@ def test_Graph():
 #
 #
 # # assert brain_network.edges_weights_sum('amygdala') == 8
-# # assert brain_network.edges_weights_sum('frontal_lobe') == 0
+# # assert brain_network.edges_weights_sum('frontal_lobe') ==
 # # assert brain_network.edges_weights_sum('hypocampus') == 10
 # # assert brain_network.edges_weights_sum('thalamus') == 5
 # # assert brain_network. edges_weights_sum('brain_stem') == 13
