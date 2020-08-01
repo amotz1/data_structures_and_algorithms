@@ -48,7 +48,7 @@ class Vertex:
         self.label = label
         self.edges = []
         self.neighbors_list = []
-        self.path = 10**30
+        self.path = 10 ** 30
 
     def get_label(self):
         return self.label
@@ -130,7 +130,6 @@ class Algorithms:
     #     seen = [vertex]
     #     for neighbor in vertex.get_neighbors():
     #         seen.append(neighbor)
-
 
 
 def create_test_graph():
@@ -274,6 +273,8 @@ def test_Graph():
     haifa = israel_cities.get_vertex('haifa')
     rishon = israel_cities.get_vertex('rishon')
     eilat = israel_cities.get_vertex('eilat')
+    # edge = haifa.get_neighbor_edge(haifa, rishon)
+    # assert edge.weight == 40
     # shortest_path = Algorithm.shortest_path(haifa, haifa)
     # assert shortest_path == 0
     # shortest_path = Algorithm.shortest_path(haifa, rishon)
@@ -284,7 +285,7 @@ def test_Graph():
     # assert shortest_path == 90
 
     # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
-
+    # TODO implementing a function that iterate through edges and return the weight of a neighbor vertex
 
 #
 #
