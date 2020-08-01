@@ -48,6 +48,7 @@ class Vertex:
         self.label = label
         self.edges = []
         self.neighbors_list = []
+        self.path = 10**30
 
     def get_label(self):
         return self.label
@@ -57,6 +58,9 @@ class Vertex:
         # messing with this will break the graph integrity
         neighbors_list_copy = list(self.neighbors_list)
         return neighbors_list_copy
+
+    def get_path(self):
+        return self.path
 
 
 class Edge:
@@ -120,6 +124,14 @@ class Algorithms:
                     qu.push(neighbor)
         return vertices_list
 
+    # @staticmethod
+    # def shortest_path(vertex,dest):
+    #     vertex.path = 0
+    #     seen = [vertex]
+    #     for neighbor in vertex.get_neighbors():
+    #         seen.append(neighbor)
+
+
 
 def create_test_graph():
     brain_network = Graph()
@@ -159,16 +171,14 @@ def create_test_graph_2():
     return two_pairs_of_cities
 
 
-def create_test_graph_3():
+def create_test_cities():
     israel_cities = Graph()
-    for city in ['haifa', 'rishon', 'hulon', 'beer_sheva', 'naharia', 'eilat']:
-        israel_cities.create_vertex(city)
-    hulon = israel_cities.get_vertex('hulon')
-    rishon = israel_cities.get_vertex('rishon')
-    haifa = israel_cities.get_vertex('haifa')
-    beer_sheva = israel_cities.get_vertex('beer_sheva')
-    naharia = israel_cities.get_vertex('naharia')
-    eilat = israel_cities.get_vertex('eilat')
+    hulon = israel_cities.create_vertex('hulon')
+    rishon = israel_cities.create_vertex('rishon')
+    haifa = israel_cities.create_vertex('haifa')
+    beer_sheva = israel_cities.create_vertex('beer_sheva')
+    naharia = israel_cities.create_vertex('naharia')
+    eilat = israel_cities.create_vertex('eilat')
     israel_cities.create_edge(haifa, hulon, 25)
     israel_cities.create_edge(haifa, eilat, 100)
     israel_cities.create_edge(haifa, rishon, 40)
@@ -260,13 +270,15 @@ def test_Graph():
         bfs_vertices = Algorithms.bfs(city)
         assert dfs_vertices == bfs_vertices
         assert rec_dfs_vertices == dfs_vertices
-    israel_cities = create_test_graph_3()
+    israel_cities = create_test_cities()
     haifa = israel_cities.get_vertex('haifa')
     rishon = israel_cities.get_vertex('rishon')
     eilat = israel_cities.get_vertex('eilat')
     # shortest_path = Algorithm.shortest_path(haifa, haifa)
     # assert shortest_path == 0
     # shortest_path = Algorithm.shortest_path(haifa, rishon)
+    # assert shortest_path == 40
+    # shortest_path = Algorithm.shortest_path(rishon, haifa)
     # assert shortest_path == 40
     # shortest_path = Algorithm.shortest_path(haifa, eilat)
     # assert shortest_path == 90

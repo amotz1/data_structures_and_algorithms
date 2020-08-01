@@ -91,7 +91,7 @@ def test():
         print("in\t", testCase)
         sort(testCase)
         print("out\t", sort(testCase))
-        assert (sort(testCase) == sorted(testCase))
+        assert(sort(testCase) == sorted(testCase))
 
 
 test()
