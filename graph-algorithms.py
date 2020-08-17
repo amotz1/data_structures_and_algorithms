@@ -5,7 +5,7 @@ import mergesort
 
 
 #  implementation of a dfs, recursive dfs and bfs on an undirected graph
-#  preliminary work for a future shortest path algorithm (test graph and some tests)
+#  preliminary work for a future shortest path_length algorithm (test graph and some tests)
 
 
 class Graph:
@@ -17,7 +17,7 @@ class Graph:
         self.label2vertex.put(label, vertex)
         return vertex
 
-    def create_edge(self, vertex_obj_1, vertex_obj_2, weight):
+    def create_edge(self, vertex_obj_1, vertex_obj_2, length):
         # checking that both two argument vertices are Vertex instances that are present in the graph
         assert hasattr(vertex_obj_1, 'label') is True, 'either one or two of the objects you try to connect ' \
                                                        'are not vertices'
@@ -27,16 +27,17 @@ class Graph:
                                                                           'to connect are not in the graph'
         assert self.label2vertex.get(vertex_obj_2.label) == vertex_obj_2, 'either one or two of the vertices ' \
                                                                           'you try to connect are not in the graph'
-        edge = Edge(vertex_obj_1, vertex_obj_2, weight)
+        edge_forwards = Edge(vertex_obj_1, vertex_obj_2, length)
+        edge_backwards = Edge(vertex_obj_2, vertex_obj_1, length)
         # appending the edge and the vertices it contains
         # to a separate edges and neighbors_list lists in vertices objects
         vertex_obj_1 = self.label2vertex.get(vertex_obj_1.label)
         vertex_obj_2 = self.label2vertex.get(vertex_obj_2.label)
-        vertex_obj_1.edges.append(edge)
-        vertex_obj_2.edges.append(edge)
-        vertex_obj_1.neighbors_list.append(edge.vertex_obj_2)
-        vertex_obj_2.neighbors_list.append(edge.vertex_obj_1)
-        return edge
+        vertex_obj_1.edges.append(edge_forwards)
+        vertex_obj_2.edges.append(edge_backwards)
+        vertex_obj_1.neighbors_list.append(edge_forwards.vertex_obj_2)
+        vertex_obj_2.neighbors_list.append(edge_backwards.vertex_obj_2)
+        return [edge_forwards, edge_backwards]
 
     def get_vertex(self, label):
         vertex = self.label2vertex.get(label)
@@ -44,11 +45,11 @@ class Graph:
 
 
 class Vertex:
-    def __init__(self, label):
+    def __init__(self, label, path_length=10**30):
         self.label = label
         self.edges = []
         self.neighbors_list = []
-        self.path = 10 ** 30
+        self.path_length = path_length
 
     def get_label(self):
         return self.label
@@ -59,78 +60,95 @@ class Vertex:
         neighbors_list_copy = list(self.neighbors_list)
         return neighbors_list_copy
 
-    def get_path(self):
-        return self.path
+    def get_path_length(self):
+        return self.path_length
+
+    def get_edges(self):
+        return self.edges
 
 
 class Edge:
-    def __init__(self, vertex_obj_1, vertex_obj_2, weight):
+    def __init__(self, vertex_obj_1, vertex_obj_2, length):
         self.vertex_obj_1 = vertex_obj_1
         self.vertex_obj_2 = vertex_obj_2
-        self.weight = weight
+        self.length = length
+
+    def get_length(self):
+        return self.length
+
+    def get_vertices(self):
+        return [self.vertex_obj_1, self.vertex_obj_2]
 
 
 class Algorithms:
     @staticmethod
     def dfs(root):
         vertices_list = []
-        seen = hashtable.Hashtable()
+        path_ends = hashtable.Hashtable()
         st = stack.Stack()
         st.push(root)
         while not st.is_empty():
             vertex = st.pop()
-            if seen.get(vertex.label) is not None:
+            if path_ends.get(vertex.label) is not None:
                 continue
-            seen.put(vertex.label, 'dummy')
+            path_ends.put(vertex.label, 'dummy')
             vertices_list.append(vertex)
             for neighbor in vertex.get_neighbors():
-                if seen.get(neighbor.label) is None:
+                if path_ends.get(neighbor.label) is None:
                     st.push(neighbor)
         return vertices_list
 
     @staticmethod
-    def _recursive_dfs(vertex, vertices_list, seen):
+    def _recursive_dfs(vertex, vertices_list, path_ends):
         vertices_list.append(vertex)
-        seen.put(vertex.label, 'dummy')
+        path_ends.put(vertex.label, 'dummy')
         # reversing the neighbors_list_copy to make recursive dfs and dfs function
         # output the same vertices
         neighbor_list = vertex.get_neighbors()
         neighbor_list.reverse()
         for neighbor in neighbor_list:
-            if seen.get(neighbor.label) is None:
-                Algorithms._recursive_dfs(neighbor, vertices_list, seen)
+            if path_ends.get(neighbor.label) is None:
+                Algorithms._recursive_dfs(neighbor, vertices_list, path_ends)
 
     @staticmethod
     def recursive_dfs(vertex):
-        seen = hashtable.Hashtable()
+        path_ends = hashtable.Hashtable()
         vertices_list = []
-        Algorithms._recursive_dfs(vertex, vertices_list, seen)
+        Algorithms._recursive_dfs(vertex, vertices_list, path_ends)
         return vertices_list
 
     @staticmethod
     def bfs(root):
         vertices_list = []
-        seen = hashtable.Hashtable()
+        path_ends = hashtable.Hashtable()
         qu = queue1.Queue()
         qu.push(root)
         while not qu.is_empty():
             vertex = qu.pop().value
-            if seen.get(vertex.label) is not None:
+            if path_ends.get(vertex.label) is not None:
                 continue
-            seen.put(vertex.label, 'dummy')
+            path_ends.put(vertex.label, 'dummy')
             vertices_list.append(vertex)
             for neighbor in vertex.get_neighbors():
-                if seen.get(neighbor.label) is None:
+                if path_ends.get(neighbor.label) is None:
                     qu.push(neighbor)
         return vertices_list
 
-    # @staticmethod
-    # def shortest_path(vertex,dest):
-    #     vertex.path = 0
-    #     seen = [vertex]
-    #     for neighbor in vertex.get_neighbors():
-    #         seen.append(neighbor)
-
+    @staticmethod
+    def shortest_path(source, dest):
+        source.path_length = 0
+        optional_dest = source
+        path_ends = [optional_dest]
+        while dest.path_length > max([vertex.path_length for vertex in path_ends]):
+            for edge in optional_dest.get_edges():
+                path_ends.append(edge.get_vertices()[1])
+                if optional_dest.path_length + edge.length < edge.get_vertices()[1].path_length:
+                    edge.get_vertices()[1].path_length = optional_dest.path_length + edge.length
+            path_ends.remove(optional_dest)
+            for vertex in path_ends:
+                if vertex.path_length == min([vertex.path_length for vertex in path_ends]):
+                    optional_dest = vertex
+        return dest.path_length
 
 def create_test_graph():
     brain_network = Graph()
@@ -273,19 +291,22 @@ def test_Graph():
     haifa = israel_cities.get_vertex('haifa')
     rishon = israel_cities.get_vertex('rishon')
     eilat = israel_cities.get_vertex('eilat')
-    # edge = haifa.get_neighbor_edge(haifa, rishon)
-    # assert edge.weight == 40
-    # shortest_path = Algorithm.shortest_path(haifa, haifa)
-    # assert shortest_path == 0
-    # shortest_path = Algorithm.shortest_path(haifa, rishon)
-    # assert shortest_path == 40
-    # shortest_path = Algorithm.shortest_path(rishon, haifa)
-    # assert shortest_path == 40
-    # shortest_path = Algorithm.shortest_path(haifa, eilat)
-    # assert shortest_path == 90
+    shortest_path = Algorithms.shortest_path(haifa, haifa)
+    assert shortest_path == 0
+    shortest_path = Algorithms.shortest_path(haifa, rishon)
+    assert shortest_path == 40
+    shortest_path = Algorithms.shortest_path(rishon, haifa)
+    assert shortest_path == 40
+    shortest_path = Algorithms.shortest_path(haifa, eilat)
+    assert shortest_path == 90
+
+
+
+
 
     # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
-    # TODO implementing a function that iterate through edges and return the weight of a neighbor vertex
+    # TODO finding a way to make the user not to change the path_length variable each time he uses the shortest_path algorithm
+
 
 #
 #
