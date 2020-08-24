@@ -142,6 +142,7 @@ class Algorithms:
         explored_vertices = []
         while dest.path_length >= max([vertex.path_length for vertex in path_ends]):
             path_ends.remove(path_end_of_shortest_path_length)
+            # creating explored_vertices list in order to remember them and not returning to them later
             explored_vertices.append(path_end_of_shortest_path_length)
             for edge in path_end_of_shortest_path_length.get_edges():
                 explored_vertex = False
@@ -149,6 +150,7 @@ class Algorithms:
                     if edge.get_vertices()[1] == vertex:
                         explored_vertex = True
                 path_end_found = False
+                # checking if the neighboring vertex is a path end in order to not have duplicates in path ends data structure
                 for vertex in path_ends:
                     if edge.get_vertices()[1] == vertex:
                         path_end_found = True
@@ -159,11 +161,10 @@ class Algorithms:
             for vertex in path_ends:
                 if vertex.path_length == min([vertex.path_length for vertex in path_ends]):
                     path_end_of_shortest_path_length = vertex
+            # we had an issue that actually the while loop condition in our test will never finish because dest.path_length is always >= path end with the maximum path length.
+            # so i added this condition to break the while loop if i explored all the vertices except the last one.
             if len(explored_vertices) == vertex2label.size()-1:
-                shortest_path = dest.path_length
-                for kvp in vertex2label:
-                    kvp.value.path_length = sys.maxsize
-                return shortest_path
+                break
         shortest_path = dest.path_length
         for kvp in vertex2label:
             kvp.value.path_length = sys.maxsize
