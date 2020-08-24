@@ -2,10 +2,10 @@ import hashtable
 import stack
 import queue1
 import mergesort
-
+import sys
 
 #  implementation of a dfs, recursive dfs and bfs on an undirected graph
-#  preliminary work for a future shortest path_length algorithm (test graph and some tests)
+#  implementation of a shortest path algorithm
 
 
 class Graph:
@@ -45,7 +45,7 @@ class Graph:
 
 
 class Vertex:
-    def __init__(self, label, path_length=10 ** 30):
+    def __init__(self, label, path_length=sys.maxsize):
         self.label = label
         self.edges = []
         self.neighbors_list = []
@@ -162,11 +162,11 @@ class Algorithms:
             if len(explored_vertices) == vertex2label.size()-1:
                 shortest_path = dest.path_length
                 for kvp in vertex2label:
-                    kvp.value.path_length = 10 ** 30
+                    kvp.value.path_length = sys.maxsize
                 return shortest_path
         shortest_path = dest.path_length
         for kvp in vertex2label:
-            kvp.value.path_length = 10 ** 30
+            kvp.value.path_length = sys.maxsize
         return shortest_path
 
 
@@ -321,8 +321,9 @@ def test_Graph():
     assert shortest_path == 90
 
     # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
-    # TODO finding a way to make the user not to change the path_length variable each time he uses the shortest_path algorithm
-
+    # TODO changing the edges to be uni-directional
+    # TODO maybe thinking on some other way instead of resetting the path_length of all the vertices in the graph
+    #  in order to make the shortest path algorithm to work
 
 #
 #
