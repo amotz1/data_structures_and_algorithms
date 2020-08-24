@@ -45,7 +45,7 @@ class Graph:
 
 
 class Vertex:
-    def __init__(self, label, path_length=10**30):
+    def __init__(self, label, path_length=10 ** 30):
         self.label = label
         self.edges = []
         self.neighbors_list = []
@@ -135,20 +135,40 @@ class Algorithms:
         return vertices_list
 
     @staticmethod
-    def shortest_path(source, dest):
+    def shortest_path(source, dest, vertex2label):
         source.path_length = 0
-        optional_dest = source
-        path_ends = [optional_dest]
-        while dest.path_length > max([vertex.path_length for vertex in path_ends]):
-            for edge in optional_dest.get_edges():
-                path_ends.append(edge.get_vertices()[1])
-                if optional_dest.path_length + edge.length < edge.get_vertices()[1].path_length:
-                    edge.get_vertices()[1].path_length = optional_dest.path_length + edge.length
-            path_ends.remove(optional_dest)
+        path_end_of_shortest_path_length = source
+        path_ends = [path_end_of_shortest_path_length]
+        explored_vertices = []
+        while dest.path_length >= max([vertex.path_length for vertex in path_ends]):
+            path_ends.remove(path_end_of_shortest_path_length)
+            explored_vertices.append(path_end_of_shortest_path_length)
+            for edge in path_end_of_shortest_path_length.get_edges():
+                explored_vertex = False
+                for vertex in explored_vertices:
+                    if edge.get_vertices()[1] == vertex:
+                        explored_vertex = True
+                path_end_found = False
+                for vertex in path_ends:
+                    if edge.get_vertices()[1] == vertex:
+                        path_end_found = True
+                if path_end_of_shortest_path_length.path_length + edge.length < edge.get_vertices()[1].path_length:
+                    edge.get_vertices()[1].path_length = path_end_of_shortest_path_length.path_length + edge.length
+                if not explored_vertex and not path_end_found:
+                    path_ends.append(edge.get_vertices()[1])
             for vertex in path_ends:
                 if vertex.path_length == min([vertex.path_length for vertex in path_ends]):
-                    optional_dest = vertex
-        return dest.path_length
+                    path_end_of_shortest_path_length = vertex
+            if len(explored_vertices) == vertex2label.size()-1:
+                shortest_path = dest.path_length
+                for kvp in vertex2label:
+                    kvp.value.path_length = 10 ** 30
+                return shortest_path
+        shortest_path = dest.path_length
+        for kvp in vertex2label:
+            kvp.value.path_length = 10 ** 30
+        return shortest_path
+
 
 def create_test_graph():
     brain_network = Graph()
@@ -291,18 +311,14 @@ def test_Graph():
     haifa = israel_cities.get_vertex('haifa')
     rishon = israel_cities.get_vertex('rishon')
     eilat = israel_cities.get_vertex('eilat')
-    shortest_path = Algorithms.shortest_path(haifa, haifa)
+    shortest_path = Algorithms.shortest_path(haifa, haifa, israel_cities.label2vertex)
     assert shortest_path == 0
-    shortest_path = Algorithms.shortest_path(haifa, rishon)
+    shortest_path = Algorithms.shortest_path(haifa, rishon, israel_cities.label2vertex)
     assert shortest_path == 40
-    shortest_path = Algorithms.shortest_path(rishon, haifa)
+    shortest_path = Algorithms.shortest_path(rishon, haifa, israel_cities.label2vertex)
     assert shortest_path == 40
-    shortest_path = Algorithms.shortest_path(haifa, eilat)
+    shortest_path = Algorithms.shortest_path(haifa, eilat, israel_cities.label2vertex)
     assert shortest_path == 90
-
-
-
-
 
     # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
     # TODO finding a way to make the user not to change the path_length variable each time he uses the shortest_path algorithm
