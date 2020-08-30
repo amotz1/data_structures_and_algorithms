@@ -84,90 +84,97 @@ class Algorithms:
     @staticmethod
     def dfs(root):
         vertices_list = []
-        path_ends = hashtable.Hashtable()
+        seen = hashtable.Hashtable()
         st = stack.Stack()
         st.push(root)
         while not st.is_empty():
             vertex = st.pop()
-            if path_ends.get(vertex.label) is not None:
+            if seen.get(vertex.label) is not None:
                 continue
-            path_ends.put(vertex.label, 'dummy')
+            seen.put(vertex.label, 'dummy')
             vertices_list.append(vertex)
             for neighbor in vertex.get_neighbors():
-                if path_ends.get(neighbor.label) is None:
+                if seen.get(neighbor.label) is None:
                     st.push(neighbor)
         return vertices_list
 
     @staticmethod
-    def _recursive_dfs(vertex, vertices_list, path_ends):
+    def _recursive_dfs(vertex, vertices_list, seen):
         vertices_list.append(vertex)
-        path_ends.put(vertex.label, 'dummy')
+        seen.put(vertex.label, 'dummy')
         # reversing the neighbors_list_copy to make recursive dfs and dfs function
         # output the same vertices
         neighbor_list = vertex.get_neighbors()
         neighbor_list.reverse()
         for neighbor in neighbor_list:
-            if path_ends.get(neighbor.label) is None:
-                Algorithms._recursive_dfs(neighbor, vertices_list, path_ends)
+            if seen.get(neighbor.label) is None:
+                Algorithms._recursive_dfs(neighbor, vertices_list, seen)
 
     @staticmethod
     def recursive_dfs(vertex):
-        path_ends = hashtable.Hashtable()
+        seen = hashtable.Hashtable()
         vertices_list = []
-        Algorithms._recursive_dfs(vertex, vertices_list, path_ends)
+        Algorithms._recursive_dfs(vertex, vertices_list, seen)
         return vertices_list
 
     @staticmethod
     def bfs(root):
         vertices_list = []
-        path_ends = hashtable.Hashtable()
+        seen = hashtable.Hashtable()
         qu = queue1.Queue()
         qu.push(root)
         while not qu.is_empty():
             vertex = qu.pop().value
-            if path_ends.get(vertex.label) is not None:
+            if seen.get(vertex.label) is not None:
                 continue
-            path_ends.put(vertex.label, 'dummy')
+            seen.put(vertex.label, 'dummy')
             vertices_list.append(vertex)
             for neighbor in vertex.get_neighbors():
-                if path_ends.get(neighbor.label) is None:
+                if seen.get(neighbor.label) is None:
                     qu.push(neighbor)
         return vertices_list
 
     @staticmethod
     def shortest_path(source, dest, vertex2label):
         source.path_length = 0
-        path_end_of_shortest_path_length = source
-        path_ends = [path_end_of_shortest_path_length]
-        explored_vertices = []
-        while dest.path_length >= max([vertex.path_length for vertex in path_ends]):
-            path_ends.remove(path_end_of_shortest_path_length)
-            # creating explored_vertices list in order to remember those vertices and not adding them to path_ends
+        shortest_path_end = source
+        path_ends = [shortest_path_end]
+        seen = []
+        while len(seen) != vertex2label.size()-1 and dest.path_length >= max([vertex.path_length for vertex in path_ends]):
+            path_ends.remove(shortest_path_end)
+            # creating seen list in order to remember those vertices and not adding them to path_ends
             # after i removed them
-            explored_vertices.append(path_end_of_shortest_path_length)
-            for edge in path_end_of_shortest_path_length.get_edges():
-                explored_vertex = False
-                for vertex in explored_vertices:
-                    if edge.get_vertices()[1] == vertex:
-                        explored_vertex = True
-                path_end_found = False
+            seen.append(shortest_path_end)
+            for edge in shortest_path_end.get_edges():
+                neighbor = edge.get_vertices()[1]
+
                 # checking if the neighboring vertex is a path end in order
                 # not to have duplicates in path_ends data structure
-                for vertex in path_ends:
-                    if edge.get_vertices()[1] == vertex:
-                        path_end_found = True
-                if path_end_of_shortest_path_length.path_length + edge.length < edge.get_vertices()[1].path_length:
-                    edge.get_vertices()[1].path_length = path_end_of_shortest_path_length.path_length + edge.length
-                if not explored_vertex and not path_end_found:
-                    path_ends.append(edge.get_vertices()[1])
+                if shortest_path_end.path_length + edge.length < edge.get_vertices()[1].path_length:
+                    neighbor.path_length = shortest_path_end.path_length + edge.length
+
+                # in 161 and 162 i write the 1 liners
+                # (any iterate through each item in a list and returns true if it exist and false otherwise
+                # the list comprehension produce a list of logical values)
+                # this runs in o^2 time i think so it might not be worth it, what do you think?
+
+                # explored_vertex_found = any([True for vertex in seen if vertex == neighbor])
+                # path_end_found = any([True for vertex in path_ends if vertex == neighbor])
+
+                explored_vertex_found = False
+                path_end_found = False
+                if neighbor in seen:
+                    explored_vertex_found = True
+                if neighbor in path_ends:
+                    path_end_found = True
+                if not explored_vertex_found and not path_end_found:
+                    path_ends.append(neighbor)
+
+            path_ends_min = min(list(map(lambda x: x.path_length, path_ends)))
             for vertex in path_ends:
-                if vertex.path_length == min([vertex.path_length for vertex in path_ends]):
-                    path_end_of_shortest_path_length = vertex
-            # we had an issue that actually the while loop condition in our function will never finish
-            # because in our case dest.path_length is always >= path end with the maximum path length.
-            # so i added this condition to break the while loop if i explored all the vertices except the last one.
-            if len(explored_vertices) == vertex2label.size()-1:
-                break
+                if vertex.path_length == path_ends_min:
+                    shortest_path_end = vertex
+                    
         shortest_path = dest.path_length
         for kvp in vertex2label:
             kvp.value.path_length = sys.maxsize
@@ -328,6 +335,8 @@ def test_Graph():
     # TODO changing the edges to be uni-directional
     # TODO maybe thinking on some other way instead of resetting the path_length of all the vertices in the graph
     #  in order to make the shortest path algorithm to work
+    # TODO cleaning the shortest path algorithm more and finding a way to remove the path_end condition because
+    #  its redundant
 
 #
 #
