@@ -45,11 +45,10 @@ class Graph:
 
 
 class Vertex:
-    def __init__(self, label, path_length=sys.maxsize):
+    def __init__(self, label):
         self.label = label
         self.edges = []
         self.neighbors_list = []
-        self.path_length = path_length
 
     def get_label(self):
         return self.label
@@ -59,9 +58,6 @@ class Vertex:
         # messing with this will break the graph integrity
         neighbors_list_copy = list(self.neighbors_list)
         return neighbors_list_copy
-
-    def get_path_length(self):
-        return self.path_length
 
     def get_edges(self):
         return self.edges
@@ -135,50 +131,40 @@ class Algorithms:
         return vertices_list
 
     @staticmethod
-    def shortest_path(source, dest, vertex2label):
-        source.path_length = 0
+    def shortest_path(source, dest):
         shortest_path_end = source
-        path_ends = [shortest_path_end]
-        seen = []
-        while len(seen) != vertex2label.size()-1 and dest.path_length >= max([vertex.path_length for vertex in path_ends]):
-            path_ends.remove(shortest_path_end)
-            # creating seen list in order to remember those vertices and not adding them to path_ends
-            # after i removed them
-            seen.append(shortest_path_end)
+        label2path_length = {source.label: 0}
+        path_ends = {shortest_path_end: 'dummy'}
+        seen = hashtable.Hashtable()
+        while True:
+            if len(path_ends) == 0:
+                break
+            # TODO a condition which stops the while loop
+            #  if dest path_lengh is greater or equal to the path end with maximum path length
+            path_ends_min = sys.maxsize
+            for path_end, dummy in path_ends.items():
+                if label2path_length[path_end.label] < path_ends_min:
+                    path_ends_min = label2path_length[path_end.label]
+                    shortest_path_end = path_end
             for edge in shortest_path_end.get_edges():
                 neighbor = edge.get_vertices()[1]
-
-                # checking if the neighboring vertex is a path end in order
-                # not to have duplicates in path_ends data structure
-                if shortest_path_end.path_length + edge.length < edge.get_vertices()[1].path_length:
-                    neighbor.path_length = shortest_path_end.path_length + edge.length
-
-                # in 161 and 162 i write the 1 liners
-                # (any iterate through each item in a list and returns true if it exist and false otherwise
-                # the list comprehension produce a list of logical values)
-                # this runs in o^2 time i think so it might not be worth it, what do you think?
-
-                # explored_vertex_found = any([True for vertex in seen if vertex == neighbor])
-                # path_end_found = any([True for vertex in path_ends if vertex == neighbor])
-
-                explored_vertex_found = False
-                path_end_found = False
-                if neighbor in seen:
-                    explored_vertex_found = True
-                if neighbor in path_ends:
-                    path_end_found = True
-                if not explored_vertex_found and not path_end_found:
-                    path_ends.append(neighbor)
-
-            path_ends_min = min(list(map(lambda x: x.path_length, path_ends)))
-            for vertex in path_ends:
-                if vertex.path_length == path_ends_min:
-                    shortest_path_end = vertex
-                    
-        shortest_path = dest.path_length
-        for kvp in vertex2label:
-            kvp.value.path_length = sys.maxsize
-        return shortest_path
+                if neighbor not in path_ends:
+                    visited = False
+                    for key in seen:
+                        if key.key == neighbor.label:
+                            visited = True
+                    if not visited:
+                        if neighbor == dest:
+                            label2path_length[neighbor.label] = label2path_length[shortest_path_end.label] + edge.length
+                        else:
+                            path_ends[neighbor] = 'dummy'
+                            label2path_length[neighbor.label] = label2path_length[shortest_path_end.label] + edge.length
+                else:
+                    if label2path_length[shortest_path_end.label] + edge.length < label2path_length[neighbor.label]:
+                        label2path_length[neighbor.label] = label2path_length[shortest_path_end.label] + edge.length
+            del path_ends[shortest_path_end]
+            seen.put(shortest_path_end.label, 'dummy')
+        return label2path_length[dest.label]
 
 
 def create_test_graph():
@@ -322,21 +308,17 @@ def test_Graph():
     haifa = israel_cities.get_vertex('haifa')
     rishon = israel_cities.get_vertex('rishon')
     eilat = israel_cities.get_vertex('eilat')
-    shortest_path = Algorithms.shortest_path(haifa, haifa, israel_cities.label2vertex)
+    shortest_path = Algorithms.shortest_path(haifa, haifa)
     assert shortest_path == 0
-    shortest_path = Algorithms.shortest_path(haifa, rishon, israel_cities.label2vertex)
+    shortest_path = Algorithms.shortest_path(haifa, rishon)
     assert shortest_path == 40
-    shortest_path = Algorithms.shortest_path(rishon, haifa, israel_cities.label2vertex)
+    shortest_path = Algorithms.shortest_path(rishon, haifa)
     assert shortest_path == 40
-    shortest_path = Algorithms.shortest_path(haifa, eilat, israel_cities.label2vertex)
+    shortest_path = Algorithms.shortest_path(haifa, eilat)
     assert shortest_path == 90
 
     # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
     # TODO changing the edges to be uni-directional
-    # TODO maybe thinking on some other way instead of resetting the path_length of all the vertices in the graph
-    #  in order to make the shortest path algorithm to work
-    # TODO cleaning the shortest path algorithm more and finding a way to remove the path_end condition because
-    #  its redundant
 
 #
 #
