@@ -5,7 +5,7 @@ import mergesort
 import sys
 
 #  implementation of a dfs, recursive dfs and bfs on an undirected graph
-#  implementation of a shortest path algorithm
+#  implementation of a shortest path algorithm that has a bug right now
 
 
 class Graph:
@@ -140,7 +140,7 @@ class Algorithms:
             if len(path_ends) == 0:
                 break
             # TODO a condition which stops the while loop
-            #  if dest path_lengh is greater or equal to the path end with maximum path length
+            #  if dest path lengh is greater or equal to the path end with maximum path length
             path_ends_min = sys.maxsize
             for path_end, dummy in path_ends.items():
                 if label2path_length[path_end.label] < path_ends_min:
@@ -318,6 +318,7 @@ def test_Graph():
     assert shortest_path == 90
 
     # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
+    # TODO fixing the bug in the shortest path algorthm
     # TODO changing the edges to be uni-directional
 
 #
