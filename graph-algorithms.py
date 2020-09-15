@@ -133,38 +133,48 @@ class Algorithms:
     @staticmethod
     def shortest_path(source, dest):
         shortest_path_end = source
-        label2path_length = {source.label: 0}
-        path_ends = {shortest_path_end: 'dummy'}
-        seen = hashtable.Hashtable()
+
+        # path length refer to the current shortest path length from the source to a city.
+        # in time, the algorithm may find shorter paths so the numbers may change.
+        vertex2path_length = {source: 0}
+
+        # active path end refer to the city at the end of each active path that we are developing
+        active_path_ends = {shortest_path_end: 'dummy'}
+
         while True:
-            if len(path_ends) == 0:
+            # checking when to stop developing new paths
+            if len(active_path_ends) == 0:
                 break
-            # TODO a condition which stops the while loop
-            #  if dest path lengh is greater or equal to the path end with maximum path length
+            max_path_length = max(vertex2path_length.values())
+            if dest in vertex2path_length and vertex2path_length[dest] < max_path_length:
+                break
+
+            # choosing the city with the current shortest path length from the active path ends
             path_ends_min = sys.maxsize
-            for path_end, dummy in path_ends.items():
-                if label2path_length[path_end.label] < path_ends_min:
-                    path_ends_min = label2path_length[path_end.label]
+            for path_end, dummy in active_path_ends.items():
+                if vertex2path_length[path_end] < path_ends_min:
+                    path_ends_min = vertex2path_length[path_end]
                     shortest_path_end = path_end
+
+            # after choosing the city, i start to develop from it new paths, so this city is not a path end anymore.
+            del active_path_ends[shortest_path_end]
+
+            # visiting the neighboring cities and updating the current shortest path to them.
+            # if the neighbor city is not the destination and i updated its current shortest path length,
+            # i also add it as an end of an active path for future exploration.
             for edge in shortest_path_end.get_edges():
                 neighbor = edge.get_vertices()[1]
-                if neighbor not in path_ends:
-                    visited = False
-                    for key in seen:
-                        if key.key == neighbor.label:
-                            visited = True
-                    if not visited:
-                        if neighbor == dest:
-                            label2path_length[neighbor.label] = label2path_length[shortest_path_end.label] + edge.length
-                        else:
-                            path_ends[neighbor] = 'dummy'
-                            label2path_length[neighbor.label] = label2path_length[shortest_path_end.label] + edge.length
+                if neighbor not in vertex2path_length:
+                    vertex2path_length[neighbor] = vertex2path_length[shortest_path_end] + edge.length
+                    if neighbor != dest:
+                        active_path_ends[neighbor] = 'dummy'
                 else:
-                    if label2path_length[shortest_path_end.label] + edge.length < label2path_length[neighbor.label]:
-                        label2path_length[neighbor.label] = label2path_length[shortest_path_end.label] + edge.length
-            del path_ends[shortest_path_end]
-            seen.put(shortest_path_end.label, 'dummy')
-        return label2path_length[dest.label]
+                    if vertex2path_length[shortest_path_end] + edge.length < vertex2path_length[neighbor]:
+                        vertex2path_length[neighbor] = vertex2path_length[shortest_path_end] + edge.length
+                        if neighbor != dest:
+                            active_path_ends[neighbor] = 'dummy'
+
+        return vertex2path_length[dest]
 
 
 def create_test_graph():
