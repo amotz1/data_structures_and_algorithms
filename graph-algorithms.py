@@ -132,29 +132,31 @@ class Algorithms:
 
     @staticmethod
     def shortest_path(source, dest):
-        shortest_path_end = source
 
-        # path length refer to the current shortest path length from the source to a city.
-        # in time, the algorithm may find shorter paths so the numbers may change.
+        # Path length refers to the shortest path length from source to dest that the algorithm has found so far
         vertex2path_length = {source: 0}
 
         # active path end refer to the city at the end of each active path that we are developing
-        active_path_ends = {shortest_path_end: 'dummy'}
+        active_path_ends = {source: 'dummy'}
 
         while True:
-            # checking when to stop developing new paths
+            # stopping to search for new active paths when we don't have any active path ends anymore
             if len(active_path_ends) == 0:
-                break
-            max_path_length = max(vertex2path_length.values())
-            if dest in vertex2path_length and vertex2path_length[dest] < max_path_length:
                 break
 
             # choosing the city with the current shortest path length from the active path ends
+            shortest_path_end = None
             path_ends_min = sys.maxsize
             for path_end, dummy in active_path_ends.items():
                 if vertex2path_length[path_end] < path_ends_min:
                     path_ends_min = vertex2path_length[path_end]
                     shortest_path_end = path_end
+            assert shortest_path_end is not None
+
+            # stopping to search for new active paths when the path length from source to dest
+            # is smaller then the smallest path that we developed
+            if dest in vertex2path_length and vertex2path_length[dest] < path_ends_min:
+                break
 
             # after choosing the city, i start to develop from it new paths, so this city is not a path end anymore.
             del active_path_ends[shortest_path_end]
@@ -173,7 +175,6 @@ class Algorithms:
                         vertex2path_length[neighbor] = vertex2path_length[shortest_path_end] + edge.length
                         if neighbor != dest:
                             active_path_ends[neighbor] = 'dummy'
-
         return vertex2path_length[dest]
 
 
@@ -232,6 +233,20 @@ def create_test_cities():
     israel_cities.create_edge(naharia, eilat, 10)
     israel_cities.create_edge(naharia, beer_sheva, 20)
     israel_cities.create_edge(beer_sheva, eilat, 90)
+    return israel_cities
+
+
+def create_test_cities_1():
+    israel_cities = Graph()
+    haifa = israel_cities.create_vertex('haifa')
+    petach_tikva = israel_cities.create_vertex('petach_tikva')
+    rishon = israel_cities.create_vertex('rishon')
+    eilat = israel_cities.create_vertex('eilat')
+    israel_cities.create_edge(haifa, eilat, 10)
+    israel_cities.create_edge(haifa, petach_tikva, 2 )
+    israel_cities.create_edge(haifa, rishon, 12)
+    israel_cities.create_edge(petach_tikva, eilat, 1)
+    israel_cities.create_edge(rishon, eilat, 30)
     return israel_cities
 
 
@@ -326,6 +341,11 @@ def test_Graph():
     assert shortest_path == 40
     shortest_path = Algorithms.shortest_path(haifa, eilat)
     assert shortest_path == 90
+    israel_cities = create_test_cities_1()
+    haifa = israel_cities.get_vertex('haifa')
+    eilat = israel_cities.get_vertex('eilat')
+    shortest_path = Algorithms.shortest_path(haifa, eilat)
+    assert shortest_path == 3
 
     # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
     # TODO changing the edges to be uni-directional
