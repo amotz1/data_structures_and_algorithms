@@ -155,13 +155,16 @@ class Algorithms:
                     shortest_path_end = path_end
             assert shortest_path_end is not None
 
+            # TODO making path_end a sorted data structure
+            #  so finding the vertex with the minimum path_length could take o[1] instead of o[n]
+
+            # after choosing the city, i start to develop from it new paths, so this city is not a path end anymore.
+            del active_path_ends[shortest_path_end]
+
             # stopping to search for new active paths when the path length from source to dest
             # is smaller then the smallest path that we developed
             if dest in vertex2path_length and vertex2path_length[dest] < path_ends_min:
                 break
-
-            # after choosing the city, i start to develop from it new paths, so this city is not a path end anymore.
-            del active_path_ends[shortest_path_end]
 
             # visiting the neighboring cities and updating the current shortest path to them.
             # if the neighbor city is not the destination and i updated its current shortest path length,
@@ -350,8 +353,7 @@ def test_Graph():
     assert shortest_path == 3
 
     # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
-    # TODO changing the edges to be uni-directional
-
+    # TODO adding edges from source to dest to my shortest path algorithm output
 
 #
 #
