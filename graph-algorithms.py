@@ -4,6 +4,7 @@ import queue1
 import mergesort
 import sys
 
+
 #  implementation of a dfs, recursive dfs and bfs on an undirected graph
 #  implementation of a shortest path algorithm
 
@@ -27,17 +28,16 @@ class Graph:
                                                                           'to connect are not in the graph'
         assert self.label2vertex.get(vertex_obj_2.label) == vertex_obj_2, 'either one or two of the vertices ' \
                                                                           'you try to connect are not in the graph'
-        edge_forwards = Edge(vertex_obj_1, vertex_obj_2, length)
-        edge_backwards = Edge(vertex_obj_2, vertex_obj_1, length)
+        edge = Edge(vertex_obj_1, vertex_obj_2, length)
         # appending the edge and the vertices it contains
         # to a separate edges and neighbors_list lists in vertices objects
         vertex_obj_1 = self.label2vertex.get(vertex_obj_1.label)
         vertex_obj_2 = self.label2vertex.get(vertex_obj_2.label)
-        vertex_obj_1.edges.append(edge_forwards)
-        vertex_obj_2.edges.append(edge_backwards)
-        vertex_obj_1.neighbors_list.append(edge_forwards.vertex_obj_2)
-        vertex_obj_2.neighbors_list.append(edge_backwards.vertex_obj_2)
-        return [edge_forwards, edge_backwards]
+        vertex_obj_1.edges.append(edge)
+        vertex_obj_2.edges.append(edge)
+        vertex_obj_1.neighbors_list.append(edge.vertex_obj_2)
+        vertex_obj_2.neighbors_list.append(edge.vertex_obj_1)
+        return edge
 
     def get_vertex(self, label):
         vertex = self.label2vertex.get(label)
@@ -72,8 +72,11 @@ class Edge:
     def get_length(self):
         return self.length
 
-    def get_vertices(self):
-        return [self.vertex_obj_1, self.vertex_obj_2]
+    def get_other_vertex(self, vertex):
+        if self.vertex_obj_1 == vertex:
+            return self.vertex_obj_2
+        else:
+            return self.vertex_obj_1
 
 
 class Algorithms:
@@ -133,16 +136,15 @@ class Algorithms:
     @staticmethod
     def shortest_path(source, dest):
 
-        # Path length refers to the shortest path length from source to dest that the algorithm has found so far
+        # Path length refers to the shortest path length that the algorithm has found so far
+        # from the source to a visited vertex
         vertex2path_length = {source: 0}
 
         # active path end refer to the city at the end of each active path that we are developing
         active_path_ends = {source: 'dummy'}
 
-        while True:
-            # stopping to search for new active paths when we don't have any active path ends anymore
-            if len(active_path_ends) == 0:
-                break
+        # stopping to search for new active paths when we don't have any active path ends anymore
+        while len(active_path_ends) != 0:
 
             # choosing the city with the current shortest path length from the active path ends
             shortest_path_end = None
@@ -165,7 +167,7 @@ class Algorithms:
             # if the neighbor city is not the destination and i updated its current shortest path length,
             # i also add it as an end of an active path for future exploration.
             for edge in shortest_path_end.get_edges():
-                neighbor = edge.get_vertices()[1]
+                neighbor = edge.get_other_vertex(shortest_path_end)
                 if neighbor not in vertex2path_length:
                     vertex2path_length[neighbor] = vertex2path_length[shortest_path_end] + edge.length
                     if neighbor != dest:
@@ -243,7 +245,7 @@ def create_test_cities_1():
     rishon = israel_cities.create_vertex('rishon')
     eilat = israel_cities.create_vertex('eilat')
     israel_cities.create_edge(haifa, eilat, 10)
-    israel_cities.create_edge(haifa, petach_tikva, 2 )
+    israel_cities.create_edge(haifa, petach_tikva, 2)
     israel_cities.create_edge(haifa, rishon, 12)
     israel_cities.create_edge(petach_tikva, eilat, 1)
     israel_cities.create_edge(rishon, eilat, 30)
@@ -349,6 +351,7 @@ def test_Graph():
 
     # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
     # TODO changing the edges to be uni-directional
+
 
 #
 #
