@@ -155,7 +155,7 @@ class Algorithms:
                     shortest_path_end = path_end
             assert shortest_path_end is not None
 
-            # TODO making path_end a sorted data structure
+            # TODO making path_end a sorted right_edges_attributes structure
             #  so finding the vertex with the minimum path_length could take o[1] instead of o[n]
 
             # after choosing the city, i start to develop from it new paths, so this city is not a path end anymore.
@@ -255,6 +255,16 @@ def create_test_cities_1():
     return israel_cities
 
 
+def test_right_path(edges, right_edges_attributes):
+    if right_edges_attributes is []:
+        assert edges == right_edges_attributes
+    else:
+        for i in range(len(edges)):
+            assert edges(i).vertex_obj_1 == right_edges_attributes[i][0]
+            assert edges(i).vertex_obj_2 == right_edges_attributes[i][1]
+            assert edges(i).length == right_edges_attributes[i][2]
+
+
 def test_Graph():
     brain_network = create_test_graph()
     # vertex that is not in the graph
@@ -338,19 +348,35 @@ def test_Graph():
     haifa = israel_cities.get_vertex('haifa')
     rishon = israel_cities.get_vertex('rishon')
     eilat = israel_cities.get_vertex('eilat')
-    shortest_path = Algorithms.shortest_path(haifa, haifa)
-    assert shortest_path == 0
-    shortest_path = Algorithms.shortest_path(haifa, rishon)
-    assert shortest_path == 40
-    shortest_path = Algorithms.shortest_path(rishon, haifa)
-    assert shortest_path == 40
-    shortest_path = Algorithms.shortest_path(haifa, eilat)
-    assert shortest_path == 90
+    shortest_path_length = Algorithms.shortest_path(haifa, haifa)[0]
+    assert shortest_path_length == 0
+    shortest_path = Algorithms.shortest_path(haifa, haifa)[1]
+    right_edges_attributes = []
+    test_right_path(shortest_path, right_edges_attributes)
+    shortest_path_length = Algorithms.shortest_path(haifa, rishon)[0]
+    assert shortest_path_length == 40
+    shortest_path = Algorithms.shortest_path(haifa, rishon)[1]
+    right_edges_attributes = [('haifa', 'rishon', 40)]
+    test_right_path(shortest_path, right_edges_attributes)
+    shortest_path_length = Algorithms.shortest_path(rishon, haifa)[0]
+    assert shortest_path_length == 40
+    shortest_path = Algorithms.shortest_path(rishon, haifa)[1]
+    right_edges_attributes = [('rishon', 'hifa', 40)]
+    test_right_path(shortest_path, right_edges_attributes)
+    shortest_path_length = Algorithms.shortest_path(haifa, eilat)[0]
+    assert shortest_path_length == 90
+    shortest_path = Algorithms.shortest_path(haifa, eilat)[1]
+    right_edges_attributes = [('haifa', 'rishon', 40), ('rishon', 'beer_sheva', 20), ('beer_sheva', 'naharia', 20),
+                              ('naharia', 'eilat', 10)]
+    test_right_path(shortest_path, right_edges_attributes)
     israel_cities = create_test_cities_1()
     haifa = israel_cities.get_vertex('haifa')
     eilat = israel_cities.get_vertex('eilat')
-    shortest_path = Algorithms.shortest_path(haifa, eilat)
-    assert shortest_path == 3
+    shortest_path_length = Algorithms.shortest_path(haifa, eilat)[0]
+    assert shortest_path_length == 3
+    shortest_path = Algorithms.shortest_path(haifa, eilat)[1]
+    right_edges_attributes = [('haifa', 'petach_tikva', 2), ('petach_tikva', 'eilat', 1)]
+    test_right_path(shortest_path, right_edges_attributes)
 
     # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
     # TODO adding edges from source to dest to my shortest path algorithm output
