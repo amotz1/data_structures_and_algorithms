@@ -348,6 +348,10 @@ def test_Graph():
     haifa = israel_cities.get_vertex('haifa')
     rishon = israel_cities.get_vertex('rishon')
     eilat = israel_cities.get_vertex('eilat')
+
+    # i plan to make my shortest path function to return a tuple.
+    # the first element of the tuple will be the shortest path length
+    # and the second will be a list of edges to the shortest path
     shortest_path_length = Algorithms.shortest_path(haifa, haifa)[0]
     assert shortest_path_length == 0
     shortest_path = Algorithms.shortest_path(haifa, haifa)[1]
