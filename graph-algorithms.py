@@ -60,7 +60,8 @@ class Vertex:
         return neighbors_list_copy
 
     def get_edges(self):
-        return self.edges
+        edges_list_copy = list(self.edges)
+        return edges_list_copy
 
 
 class Edge:
@@ -75,8 +76,10 @@ class Edge:
     def get_other_vertex(self, vertex):
         if self.vertex_obj_1 == vertex:
             return self.vertex_obj_2
-        else:
+        elif self.vertex_obj_2 == vertex:
             return self.vertex_obj_1
+        else:
+            assert False, 'the vertex is not an attribute of the edge'
 
 
 class Algorithms:
@@ -265,6 +268,18 @@ def test_right_path(edges, right_edges_attributes):
             assert edges(i).length == right_edges_attributes[i][2]
 
 
+def test_ispath_source2dest(edges, source, dest):
+    if source == dest and edges is []:
+        assert True
+    vertex = source
+    for edge in edges:
+        vertex = edge.other_vertex(vertex)
+    if vertex == dest:
+        assert True
+    else:
+        assert False
+
+
 def test_Graph():
     brain_network = create_test_graph()
     # vertex that is not in the graph
@@ -347,6 +362,8 @@ def test_Graph():
     israel_cities = create_test_cities()
     haifa = israel_cities.get_vertex('haifa')
     rishon = israel_cities.get_vertex('rishon')
+    beer_sheva = israel_cities.get_vertex('beer_sheva')
+    naharia = israel_cities.get_vertex('naharia')
     eilat = israel_cities.get_vertex('eilat')
 
     # i plan to make my shortest path function to return a tuple.
@@ -355,35 +372,41 @@ def test_Graph():
     shortest_path_length = Algorithms.shortest_path(haifa, haifa)[0]
     assert shortest_path_length == 0
     shortest_path = Algorithms.shortest_path(haifa, haifa)[1]
+    test_ispath_source2dest(shortest_path, haifa, haifa)
     right_edges_attributes = []
     test_right_path(shortest_path, right_edges_attributes)
     shortest_path_length = Algorithms.shortest_path(haifa, rishon)[0]
     assert shortest_path_length == 40
     shortest_path = Algorithms.shortest_path(haifa, rishon)[1]
-    right_edges_attributes = [('haifa', 'rishon', 40)]
+    test_ispath_source2dest(shortest_path, haifa, rishon)
+    right_edges_attributes = [(haifa, rishon, 40)]
     test_right_path(shortest_path, right_edges_attributes)
     shortest_path_length = Algorithms.shortest_path(rishon, haifa)[0]
     assert shortest_path_length == 40
     shortest_path = Algorithms.shortest_path(rishon, haifa)[1]
-    right_edges_attributes = [('rishon', 'hifa', 40)]
+    test_ispath_source2dest(shortest_path, rishon, haifa)
+    right_edges_attributes = [(rishon, haifa, 40)]
     test_right_path(shortest_path, right_edges_attributes)
     shortest_path_length = Algorithms.shortest_path(haifa, eilat)[0]
     assert shortest_path_length == 90
     shortest_path = Algorithms.shortest_path(haifa, eilat)[1]
-    right_edges_attributes = [('haifa', 'rishon', 40), ('rishon', 'beer_sheva', 20), ('beer_sheva', 'naharia', 20),
-                              ('naharia', 'eilat', 10)]
+    test_ispath_source2dest(shortest_path, haifa, eilat)
+    right_edges_attributes = [(haifa, rishon, 40), (rishon, beer_sheva, 20), (beer_sheva, naharia, 20),
+                              (naharia, eilat, 10)]
     test_right_path(shortest_path, right_edges_attributes)
     israel_cities = create_test_cities_1()
     haifa = israel_cities.get_vertex('haifa')
     eilat = israel_cities.get_vertex('eilat')
+    petach_tikva = israel_cities.get_vertex('petach_tikva')
     shortest_path_length = Algorithms.shortest_path(haifa, eilat)[0]
     assert shortest_path_length == 3
     shortest_path = Algorithms.shortest_path(haifa, eilat)[1]
-    right_edges_attributes = [('haifa', 'petach_tikva', 2), ('petach_tikva', 'eilat', 1)]
+    right_edges_attributes = [(haifa, petach_tikva, 2), (petach_tikva, eilat, 1)]
     test_right_path(shortest_path, right_edges_attributes)
 
     # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
     # TODO adding edges from source to dest to my shortest path algorithm output
+
 
 #
 #
