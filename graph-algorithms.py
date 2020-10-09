@@ -182,17 +182,17 @@ class Algorithms:
                     vertex2path_length[neighbor] = vertex2path_length[shortest_path_end] + edge.length
                     # creating a temporary copy of vertex2path[shortest_path_end]
                     # and appending the edge to it so the original variable will not be affected
-                    temp_copy = vertex2path[shortest_path_end][:]
-                    temp_copy.append(edge)
-                    vertex2path[neighbor] = temp_copy
+                    copy = vertex2path[shortest_path_end][:]
+                    copy.append(edge)
+                    vertex2path[neighbor] = copy
                     if neighbor != dest:
                         active_path_ends[neighbor] = 'dummy'
                 else:
                     if vertex2path_length[shortest_path_end] + edge.length < vertex2path_length[neighbor]:
                         vertex2path_length[neighbor] = vertex2path_length[shortest_path_end] + edge.length
-                        temp_copy = vertex2path[shortest_path_end][:]
-                        temp_copy.append(edge)
-                        vertex2path[neighbor] = temp_copy
+                        copy = vertex2path[shortest_path_end][:]
+                        copy.append(edge)
+                        vertex2path[neighbor] = copy
                         if neighbor != dest:
                             active_path_ends[neighbor] = 'dummy'
         return vertex2path_length[dest], vertex2path[dest]
@@ -271,26 +271,19 @@ def create_test_cities_1():
 
 
 def test_correct_path(edges, correct_edges_attributes):
-    if correct_edges_attributes is []:
-        assert edges == correct_edges_attributes
-    else:
-        for i in range(len(edges)):
-            # comparing each edge vertex attribute to either one of two vertices because edges are bi-directional
-            assert edges[i].vertex_obj_1 == correct_edges_attributes[i][0] or correct_edges_attributes[i][1]
-            assert edges[i].vertex_obj_2 == correct_edges_attributes[i][1] or correct_edges_attributes[i][0]
-            assert edges[i].length == correct_edges_attributes[i][2]
+    assert len(edges) == len(correct_edges_attributes)
+    for edge, attributes in zip(edges, correct_edges_attributes):
+        # comparing each edge vertex attribute to either one of two vertices because edges are bi-directional
+        assert edge.vertex_obj_1 == attributes[0] and edge.vertex_obj_2 == attributes[1] \
+               or edge.vertex_obj_2 == attributes[0] and edge.vertex_obj_1 == attributes[1]
+        assert edge.length == attributes[2]
 
 
-def test_ispath_source2dest(edges, source, dest):
-    if source == dest and edges is []:
-        assert True
+def assert_is_path(edges, source, dest):
     vertex = source
     for edge in edges:
         vertex = edge.get_other_vertex(vertex)
-    if vertex == dest:
-        assert True
-    else:
-        assert False
+    return vertex == dest
 
 
 def test_Graph():
@@ -319,7 +312,7 @@ def test_Graph():
     # checking that the output of dfs and recursive dfs are the same
     assert rec_dfs_vertices == dfs_vertices
 
-    # checking dfs and rec ursive dfs for other nodes
+    # checking dfs and recursive dfs for other nodes
     dfs_vertices = Algorithms.dfs(frontal_lobe)
     rec_dfs_vertices = Algorithms.recursive_dfs(frontal_lobe)
     assert [vertex.label for vertex in dfs_vertices] == ['frontal_lobe', 'hypocampus', 'brain_stem',
@@ -379,46 +372,43 @@ def test_Graph():
     naharia = israel_cities.get_vertex('naharia')
     eilat = israel_cities.get_vertex('eilat')
 
-    # i plan to make my shortest path function to return a tuple.
-    # the first element of the tuple will be the shortest path length
-    # and the second will be a list of edges to the shortest path
-    shortest_path_length = Algorithms.shortest_path(haifa, haifa)[0]
+    (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, haifa)
     assert shortest_path_length == 0
-    shortest_path = Algorithms.shortest_path(haifa, haifa)[1]
-    test_ispath_source2dest(shortest_path, haifa, haifa)
+    assert assert_is_path(shortest_path, haifa, haifa)
     correct_edges_attributes = []
     test_correct_path(shortest_path, correct_edges_attributes)
-    shortest_path_length = Algorithms.shortest_path(haifa, rishon)[0]
+
+    (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, rishon)
     assert shortest_path_length == 40
-    shortest_path = Algorithms.shortest_path(haifa, rishon)[1]
-    test_ispath_source2dest(shortest_path, haifa, rishon)
+    assert_is_path(shortest_path, haifa, rishon)
     correct_edges_attributes = [(haifa, rishon, 40)]
     test_correct_path(shortest_path, correct_edges_attributes)
-    shortest_path_length = Algorithms.shortest_path(rishon, haifa)[0]
+
+    (shortest_path_length, shortest_path) = Algorithms.shortest_path(rishon, haifa)
     assert shortest_path_length == 40
-    shortest_path = Algorithms.shortest_path(rishon, haifa)[1]
-    test_ispath_source2dest(shortest_path, rishon, haifa)
-    # correct_edges_attributes = [(rishon, haifa, 40)]
+    assert assert_is_path(shortest_path, rishon, haifa)
+    correct_edges_attributes = [(rishon, haifa, 40)]
     test_correct_path(shortest_path, correct_edges_attributes)
-    shortest_path_length = Algorithms.shortest_path(haifa, eilat)[0]
+
+    (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, eilat)
     assert shortest_path_length == 90
-    shortest_path = Algorithms.shortest_path(haifa, eilat)[1]
-    test_ispath_source2dest(shortest_path, haifa, eilat)
+    assert assert_is_path(shortest_path, haifa, eilat)
     correct_edges_attributes = [(haifa, rishon, 40), (rishon, beer_sheva, 20), (beer_sheva, naharia, 20),
-                              (naharia, eilat, 10)]
+                                (naharia, eilat, 10)]
     test_correct_path(shortest_path, correct_edges_attributes)
+
     israel_cities = create_test_cities_1()
     haifa = israel_cities.get_vertex('haifa')
     eilat = israel_cities.get_vertex('eilat')
     petach_tikva = israel_cities.get_vertex('petach_tikva')
-    shortest_path_length = Algorithms.shortest_path(haifa, eilat)[0]
+    (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, eilat)
     assert shortest_path_length == 3
-    shortest_path = Algorithms.shortest_path(haifa, eilat)[1]
     correct_edges_attributes = [(haifa, petach_tikva, 2), (petach_tikva, eilat, 1)]
     test_correct_path(shortest_path, correct_edges_attributes)
+    assert assert_is_path(shortest_path, haifa, eilat)
 
-    # TODO finding away to import mergsort in a way that my program will not run mergesort.py when i run it
-    # TODO adding edges from source to dest to my shortest path algorithm output
+    # TODO separate my files to tests and code
+    #  so the interpreter will not read the tests of the files that i am importing
 
 
 #
