@@ -7,6 +7,7 @@ import sys
 
 #  implementation of a dfs, recursive dfs and bfs on an undirected graph
 #  implementation of a shortest path algorithm
+#  implementation of a shortest path brute force algorithm with bugs
 
 
 class Graph:
