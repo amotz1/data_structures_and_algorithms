@@ -53,6 +53,12 @@ class Vertex:
     def get_label(self):
         return self.label
 
+    def __str__(self):
+        return self.label
+
+    def __repr__(self):
+        return self.__str__()
+
     def get_neighbors(self):
         # making a copy to vertex.get_neighbors() because
         # messing with this will break the graph integrity
@@ -80,6 +86,12 @@ class Edge:
             return self.vertex_obj_1
         else:
             assert False, 'the vertex is not an attribute of the edge'
+
+    def __str__(self):
+        return '{}-{}({})'.format(self.vertex_obj_1, self.vertex_obj_2, self.length)
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class Algorithms:
@@ -197,6 +209,39 @@ class Algorithms:
                             active_path_ends[neighbor] = 'dummy'
         return vertex2path_length[dest], vertex2path[dest]
 
+    @staticmethod
+    def shortest_path_bf(source, dest):
+        seen = {}
+        paths = []
+        edges_list = []
+        if source == dest:
+            return paths
+        paths = Algorithms._shortest_path_bf(source, dest, edges_list, paths, seen)
+        print(f'paths {paths}')
+        return paths
+
+    @staticmethod
+    def _shortest_path_bf(source, dest, paths, edges_list, seen):
+        path_end = source
+        seen[path_end] = 'dummy'
+
+        # trying to develop paths in depth with recurssion calls for each neighbor of the source that is not dest
+        # and i didn't already visit and then when encountering dest to add the path that i found to a paths variable
+        # and develop new paths from the other functions that left on the call stuck until finding dest and
+        # then do it again and again until finding all the paths, but the program has a bug that i couldn't
+        # understand yet
+        for edge in path_end.edges:
+            neighbor = edge.get_other_vertex(path_end)
+            if neighbor == dest:
+                edges_list.append(edge)
+                copy_edges_list = edges_list[:]
+                paths.append(copy_edges_list)
+                return paths
+            else:
+                if neighbor not in seen:
+                    edges_list.append(edge)
+                    Algorithms._shortest_path_bf(neighbor, dest, paths, edges_list, seen)
+
 
 def create_test_graph():
     brain_network = Graph()
@@ -279,7 +324,7 @@ def test_correct_path(edges, correct_edges_attributes):
         assert edge.length == attributes[2]
 
 
-def assert_is_path(edges, source, dest):
+def is_path(edges, source, dest):
     vertex = source
     for edge in edges:
         vertex = edge.get_other_vertex(vertex)
@@ -372,43 +417,54 @@ def test_Graph():
     naharia = israel_cities.get_vertex('naharia')
     eilat = israel_cities.get_vertex('eilat')
 
-    (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, haifa)
-    assert shortest_path_length == 0
-    assert assert_is_path(shortest_path, haifa, haifa)
-    correct_edges_attributes = []
-    test_correct_path(shortest_path, correct_edges_attributes)
+    # (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, haifa)
+    # shortest_path_length_bf = Algorithms.shortest_path_bf(haifa, haifa)
+    # assert shortest_path_length == 0
+    # assert is_path(shortest_path, haifa, haifa)
+    # correct_edges_attributes = []
+    # test_correct_path(shortest_path, correct_edges_attributes)
+    # assert shortest_path_length_bf == shortest_path_length
 
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, rishon)
+    shortest_path_length_bf = Algorithms.shortest_path_bf(haifa, rishon)
     assert shortest_path_length == 40
-    assert_is_path(shortest_path, haifa, rishon)
+    assert is_path(shortest_path, haifa, rishon)
     correct_edges_attributes = [(haifa, rishon, 40)]
     test_correct_path(shortest_path, correct_edges_attributes)
+    assert shortest_path_length_bf == shortest_path_length
 
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(rishon, haifa)
+    shortest_path_length_bf = Algorithms.shortest_path_bf(rishon, haifa)
     assert shortest_path_length == 40
-    assert assert_is_path(shortest_path, rishon, haifa)
+    assert is_path(shortest_path, rishon, haifa)
     correct_edges_attributes = [(rishon, haifa, 40)]
     test_correct_path(shortest_path, correct_edges_attributes)
+    assert shortest_path_length_bf == shortest_path_length
 
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, eilat)
+    shortest_path_length_bf = Algorithms.shortest_path_bf(rishon, haifa)
     assert shortest_path_length == 90
-    assert assert_is_path(shortest_path, haifa, eilat)
+    assert is_path(shortest_path, haifa, eilat)
     correct_edges_attributes = [(haifa, rishon, 40), (rishon, beer_sheva, 20), (beer_sheva, naharia, 20),
                                 (naharia, eilat, 10)]
     test_correct_path(shortest_path, correct_edges_attributes)
+    assert shortest_path_length_bf == shortest_path_length
 
     israel_cities = create_test_cities_1()
     haifa = israel_cities.get_vertex('haifa')
     eilat = israel_cities.get_vertex('eilat')
     petach_tikva = israel_cities.get_vertex('petach_tikva')
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, eilat)
+    shortest_path_bf = Algorithms.shortest_path_bf(rishon, haifa)
     assert shortest_path_length == 3
     correct_edges_attributes = [(haifa, petach_tikva, 2), (petach_tikva, eilat, 1)]
     test_correct_path(shortest_path, correct_edges_attributes)
-    assert assert_is_path(shortest_path, haifa, eilat)
+    assert is_path(shortest_path, haifa, eilat)
+    assert shortest_path_bf == shortest_path
 
     # TODO separate my files to tests and code
     #  so the interpreter will not read the tests of the files that i am importing
+    # TODO fixing the bugs and making my shortest_path_bf printing the right paths
 
 
 #
