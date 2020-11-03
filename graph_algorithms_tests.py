@@ -75,6 +75,20 @@ def create_test_cities_1():
     return israel_cities
 
 
+def create_brute_force_graph():
+    israel_cities = graph_algorithms.Graph()
+    haifa = israel_cities.create_vertex('haifa')
+    naharia = israel_cities.create_vertex('naharia')
+    rishon = israel_cities.create_vertex('rishon')
+    eilat = israel_cities.create_vertex('eilat')
+    israel_cities.create_edge(haifa, naharia, 10)
+    israel_cities.create_edge(haifa, rishon, 2)
+    israel_cities.create_edge(rishon, eilat, 12)
+    israel_cities.create_edge(rishon, naharia, 1)
+    israel_cities.create_edge(naharia, eilat, 30)
+    return israel_cities
+
+
 def test_correct_path(edges, correct_edges_attributes):
     assert len(edges) == len(correct_edges_attributes)
     for edge, attributes in zip(edges, correct_edges_attributes):
@@ -170,6 +184,14 @@ def test_Graph():
         bfs_vertices = Algorithms.bfs(city)
         assert dfs_vertices == bfs_vertices
         assert rec_dfs_vertices == dfs_vertices
+
+    israel_cities = create_brute_force_graph()
+    haifa = israel_cities.get_vertex('haifa')
+    eilat = israel_cities.get_vertex('eilat')
+
+    shortest_path_length_bf = Algorithms.shortest_path_bf(haifa, eilat)
+    assert shortest_path_length_bf == 14
+
     israel_cities = create_test_cities()
     haifa = israel_cities.get_vertex('haifa')
     rishon = israel_cities.get_vertex('rishon')

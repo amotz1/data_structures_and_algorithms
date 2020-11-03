@@ -211,19 +211,17 @@ class Algorithms:
 
     @staticmethod
     def shortest_path_bf(source, dest):
-        seen = {}
         paths = []
         edges_list = []
         if source == dest:
             return paths
-        Algorithms._shortest_path_bf(source, dest, edges_list, paths, seen)
+        Algorithms._shortest_path_bf(source, dest, edges_list, paths)
         print(f'paths {paths}')
         return paths
 
     @staticmethod
-    def _shortest_path_bf(source, dest, edges_list, paths, seen):
+    def _shortest_path_bf(source, dest, edges_list, paths):
         path_end = source
-        seen[path_end] = 'dummy'
 
         # trying to develop paths in depth with recurssion calls for each neighbor of the source that is not dest
         # and i didn't already visit and then when encountering dest to add the path that i found to a paths variable
@@ -236,12 +234,13 @@ class Algorithms:
                 edges_list.append(edge)
                 copy_edges_list = edges_list[:]
                 paths.append(copy_edges_list)
+                del edges_list[-1]
             else:
                 path_vertices = find_path_vertices(edges_list)
                 if neighbor not in path_vertices:
                     edges_list.append(edge)
                     print(f'edges_list {edges_list}')
-                    Algorithms._shortest_path_bf(neighbor, dest, edges_list, paths, seen)
+                    Algorithms._shortest_path_bf(neighbor, dest, edges_list, paths)
 
 
 def find_path_vertices(edges_list):
