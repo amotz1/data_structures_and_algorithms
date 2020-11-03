@@ -189,8 +189,7 @@ def test_Graph():
     haifa = israel_cities.get_vertex('haifa')
     eilat = israel_cities.get_vertex('eilat')
 
-    shortest_path_length_bf = Algorithms.shortest_path_bf(haifa, eilat)
-    assert shortest_path_length_bf == 14
+    Algorithms.compute_all_paths(haifa, eilat)
 
     israel_cities = create_test_cities()
     haifa = israel_cities.get_vertex('haifa')
@@ -199,54 +198,43 @@ def test_Graph():
     naharia = israel_cities.get_vertex('naharia')
     eilat = israel_cities.get_vertex('eilat')
 
-    # (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, haifa)
-    # shortest_path_length_bf = Algorithms.shortest_path_bf(haifa, haifa)
-    # assert shortest_path_length == 0
-    # assert is_path(shortest_path, haifa, haifa)
-    # correct_edges_attributes = []
-    # test_correct_path(shortest_path, correct_edges_attributes)
-    # assert shortest_path_length_bf == shortest_path_length
+    (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, haifa)
+    assert shortest_path_length == 0
+    assert is_path(shortest_path, haifa, haifa)
+    correct_edges_attributes = []
+    test_correct_path(shortest_path, correct_edges_attributes)
 
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, rishon)
-    shortest_path_length_bf = Algorithms.shortest_path_bf(haifa, rishon)
     assert shortest_path_length == 40
     assert is_path(shortest_path, haifa, rishon)
     correct_edges_attributes = [(haifa, rishon, 40)]
     test_correct_path(shortest_path, correct_edges_attributes)
-    assert shortest_path_length_bf == shortest_path_length
 
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(rishon, haifa)
-    shortest_path_length_bf = Algorithms.shortest_path_bf(rishon, haifa)
     assert shortest_path_length == 40
     assert is_path(shortest_path, rishon, haifa)
     correct_edges_attributes = [(rishon, haifa, 40)]
     test_correct_path(shortest_path, correct_edges_attributes)
-    assert shortest_path_length_bf == shortest_path_length
 
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, eilat)
-    shortest_path_length_bf = Algorithms.shortest_path_bf(rishon, haifa)
     assert shortest_path_length == 90
     assert is_path(shortest_path, haifa, eilat)
     correct_edges_attributes = [(haifa, rishon, 40), (rishon, beer_sheva, 20), (beer_sheva, naharia, 20),
                                 (naharia, eilat, 10)]
     test_correct_path(shortest_path, correct_edges_attributes)
-    assert shortest_path_length_bf == shortest_path_length
 
     israel_cities = create_test_cities_1()
     haifa = israel_cities.get_vertex('haifa')
     eilat = israel_cities.get_vertex('eilat')
     petach_tikva = israel_cities.get_vertex('petach_tikva')
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, eilat)
-    shortest_path_bf = Algorithms.shortest_path_bf(rishon, haifa)
     assert shortest_path_length == 3
     correct_edges_attributes = [(haifa, petach_tikva, 2), (petach_tikva, eilat, 1)]
     test_correct_path(shortest_path, correct_edges_attributes)
     assert is_path(shortest_path, haifa, eilat)
-    assert shortest_path_bf == shortest_path
 
-    # TODO separate my files to tests and code
-    #  so the interpreter will not read the tests of the files that i am importing
-    # TODO fixing the bugs and making my shortest_path_bf printing the right paths
+    # TODO changing my function compute_all_paths to compute the shortest path length out of all the paths
+    #  (and changing its name)
 
 
 #

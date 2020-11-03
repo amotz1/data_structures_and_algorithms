@@ -210,17 +210,14 @@ class Algorithms:
         return vertex2path_length[dest], vertex2path[dest]
 
     @staticmethod
-    def shortest_path_bf(source, dest):
+    def compute_all_paths(source, dest):
         paths = []
-        edges_list = []
-        if source == dest:
-            return paths
-        Algorithms._shortest_path_bf(source, dest, edges_list, paths)
-        print(f'paths {paths}')
-        return paths
+        path = []
+        Algorithms._compute_all_paths(source, dest, path, paths)
+        print('paths =', paths)
 
     @staticmethod
-    def _shortest_path_bf(source, dest, edges_list, paths):
+    def _compute_all_paths(source, dest, path, paths):
         path_end = source
 
         # trying to develop paths in depth with recurssion calls for each neighbor of the source that is not dest
@@ -231,16 +228,16 @@ class Algorithms:
         for edge in path_end.edges:
             neighbor = edge.get_other_vertex(path_end)
             if neighbor == dest:
-                edges_list.append(edge)
-                copy_edges_list = edges_list[:]
-                paths.append(copy_edges_list)
-                del edges_list[-1]
+                path.append(edge)
+                copy_path = path[:]
+                paths.append(copy_path)
+                del path[-1]
             else:
-                path_vertices = find_path_vertices(edges_list)
+                path_vertices = find_path_vertices(path)
                 if neighbor not in path_vertices:
-                    edges_list.append(edge)
-                    print(f'edges_list {edges_list}')
-                    Algorithms._shortest_path_bf(neighbor, dest, edges_list, paths)
+                    copy_of_path = path[:]
+                    copy_of_path.append(edge)
+                    Algorithms._compute_all_paths(neighbor, dest, copy_of_path, paths)
 
 
 def find_path_vertices(edges_list):
