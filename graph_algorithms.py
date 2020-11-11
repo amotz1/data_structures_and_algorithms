@@ -211,43 +211,49 @@ class Algorithms:
 
     @staticmethod
     def compute_all_paths(source, dest):
+
+        path_end = source
+        active_path = []
         paths = []
-        path = []
-        Algorithms._compute_all_paths(source, dest, path, paths)
-        print('paths =', paths)
+
+        Algorithms._compute_all_paths(path_end, dest, active_path, paths)
+        print('paths = %s' % paths)
+        return paths
 
     @staticmethod
-    def _compute_all_paths(source, dest, path, paths):
-        path_end = source
+    def _compute_all_paths(path_end, dest, active_path, paths):
 
-        # trying to develop paths in depth with recurssion calls for each neighbor of the source that is not dest
-        # and i didn't already visit and then when encountering dest to add the path that i found to a paths variable
-        # and develop new paths from the other functions that left on the call stuck until finding dest and
-        # then do it again and again until finding all the paths, but the program has a bug that i couldn't
-        # understand yet
         for edge in path_end.edges:
+
             neighbor = edge.get_other_vertex(path_end)
-            if neighbor == dest:
-                path.append(edge)
-                copy_path = path[:]
-                paths.append(copy_path)
-                del path[-1]
-            else:
-                path_vertices = find_path_vertices(path)
+
+            if neighbor != dest:
+                path_vertices = find_path_vertices(active_path)
+
                 if neighbor not in path_vertices:
-                    copy_of_path = path[:]
-                    copy_of_path.append(edge)
-                    Algorithms._compute_all_paths(neighbor, dest, copy_of_path, paths)
+                    next_active_path = active_path[:]  # making a copy of the current active path
+                    next_active_path.append(edge)
+                    Algorithms._compute_all_paths(neighbor, dest, next_active_path, paths)
+
+            else:
+                complete_path = active_path[:]
+                complete_path.append(edge)
+                paths.append(complete_path)
 
 
 def find_path_vertices(edges_list):
+
     path_vertices = []
+
     if edges_list == []:
         return []
+
     source = edges_list[0].vertex_1
     path_vertices.append(source)
+
     other_vertex = source
     for edge in edges_list:
         other_vertex = edge.get_other_vertex(other_vertex)
         path_vertices.append(other_vertex)
+
     return path_vertices
