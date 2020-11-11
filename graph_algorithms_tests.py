@@ -235,8 +235,10 @@ def test_Graph():
 
     # TODO changing my function compute_all_paths to compute the shortest path length out of all the paths
     #  (and changing its name)
+    # TODO making a test case for one call of the function _compute_all_paths 
     # TODO changing path_vartices to be a hashtable  for better performance.
     # TODO making the reccursion call return a list of paths instead of an output parameter
+
 
 
 #
