@@ -178,6 +178,7 @@ def test_Graph():
     dfs_vertices_jerusalem = Algorithms.dfs(jerusalem)
     assert list(map(lambda x: x.label, dfs_vertices_haifa)) == ['haifa', 'rishon']
     assert [vertex.label for vertex in dfs_vertices_jerusalem] == ['jerusalem', 'hulon']
+
     for city in [haifa, jerusalem]:
         dfs_vertices = Algorithms.dfs(city)
         rec_dfs_vertices = Algorithms.recursive_dfs(city)
@@ -187,9 +188,36 @@ def test_Graph():
 
     israel_cities = create_brute_force_graph()
     haifa = israel_cities.get_vertex('haifa')
+    rishon = israel_cities.get_vertex('rishon')
+    naharia = israel_cities.get_vertex('naharia')
     eilat = israel_cities.get_vertex('eilat')
 
-    Algorithms.compute_all_paths(haifa, eilat)
+    haifa_naharia = haifa.edges[0]
+    assert haifa_naharia.get_other_vertex(haifa) == naharia
+    assert haifa_naharia.get_other_vertex(naharia) == haifa
+
+    haifa_rishon = haifa.edges[1]
+    assert haifa_rishon.get_other_vertex(haifa) == rishon
+    assert haifa_rishon.get_other_vertex(rishon) == haifa
+
+    rishon_naharia = rishon.edges[2]
+    assert rishon_naharia.get_other_vertex(naharia) == rishon
+    assert rishon_naharia.get_other_vertex(rishon) == naharia
+
+    rishon_eilat = rishon.edges[1]
+    assert rishon_eilat.get_other_vertex(eilat) == rishon
+    assert rishon_eilat.get_other_vertex(rishon) == eilat
+
+    naharia_eilat = naharia.edges[2]
+    assert naharia_eilat.get_other_vertex(naharia) == eilat
+    assert naharia_eilat.get_other_vertex(eilat) == naharia
+
+    assert Algorithms.compute_all_paths(haifa, eilat) == [[haifa_naharia, rishon_naharia, rishon_eilat],
+                                                          [haifa_naharia, naharia_eilat], [haifa_rishon, rishon_eilat],
+                                                          [haifa_rishon, rishon_naharia, naharia_eilat]]
+
+    paths = []
+    Algorithms._compute_all_paths(haifa, eilat, [haifa_naharia], paths)
 
     israel_cities = create_test_cities()
     haifa = israel_cities.get_vertex('haifa')
@@ -235,7 +263,7 @@ def test_Graph():
 
     # TODO changing my function compute_all_paths to compute the shortest path length out of all the paths
     #  (and changing its name)
-    # TODO making a test case for one call of the function _compute_all_paths 
+    # TODO making a test case for one call of the function _compute_all_paths
     # TODO changing path_vartices to be a hashtable  for better performance.
     # TODO making the reccursion call return a list of paths instead of an output parameter
 

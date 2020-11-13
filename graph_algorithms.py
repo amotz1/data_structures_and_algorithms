@@ -217,7 +217,6 @@ class Algorithms:
         paths = []
 
         Algorithms._compute_all_paths(path_end, dest, active_path, paths)
-        print('paths = %s' % paths)
         return paths
 
     @staticmethod
@@ -228,6 +227,7 @@ class Algorithms:
             neighbor = edge.get_other_vertex(path_end)
 
             if neighbor != dest:
+
                 path_vertices = find_path_vertices(active_path)
 
                 if neighbor not in path_vertices:
