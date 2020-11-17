@@ -85,7 +85,7 @@ class Edge:
         elif self.vertex_2 == vertex:
             return self.vertex_1
         else:
-            assert False, 'the vertex is not an attribute of the edge'
+            assert False, '{} is not one of the vertices of {}'.format(vertex, self)
 
     def __str__(self):
         return '{}-{}({})'.format(self.vertex_1, self.vertex_2, self.length)
@@ -221,13 +221,13 @@ class Algorithms:
 
     @staticmethod
     def _compute_all_paths(path_end, dest, active_path, paths):
+        if path_end == dest:
+            paths.append([])
 
         for edge in path_end.edges:
-
             neighbor = edge.get_other_vertex(path_end)
 
             if neighbor != dest:
-
                 path_vertices = find_path_vertices(active_path)
 
                 if neighbor not in path_vertices:
@@ -240,20 +240,39 @@ class Algorithms:
                 complete_path.append(edge)
                 paths.append(complete_path)
 
+    @staticmethod
+    def shortest_path_length_bf(source, dest):
+
+        paths = Algorithms.compute_all_paths(source, dest)
+        min_path_length = sys.maxsize
+
+        for path in paths:
+            path_length = 0
+
+            if path == []:
+                min_path_length = path_length
+                return min_path_length
+
+            for i, edge in enumerate(path):
+                path_length = path_length + edge.length
+
+                if i == len(path)-1 and min_path_length > path_length:
+                    min_path_length = path_length
+
+        return min_path_length
+
 
 def find_path_vertices(edges_list):
 
     path_vertices = []
 
-    if edges_list == []:
-        return []
-
-    source = edges_list[0].vertex_1
-    path_vertices.append(source)
-
-    other_vertex = source
     for edge in edges_list:
-        other_vertex = edge.get_other_vertex(other_vertex)
-        path_vertices.append(other_vertex)
+        path_vertices.append(edge.vertex_1)
+        path_vertices.append(edge.vertex_2)
 
     return path_vertices
+
+
+
+
+
