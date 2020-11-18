@@ -299,22 +299,6 @@ def test_Graph():
     # TODO optimizing path_vartices to be a hashtable  for better performance in find_path_vertices function.
     # TODO maybe trying to avoid the find_path_vertices and using lambda instead for lazy evaluation
     # TODO making the reccursion call return a list of paths instead of an output parameter
+    # TODO making random graph and comparing shortest_path_bf with shortest_path
 
-
-
-#
-#
-# # assert brain_network.edges_weights_sum('amygdala') == 8
-# # assert brain_network.edges_weights_sum('frontal_lobe') ==
-# # assert brain_network.edges_weights_sum('hypocampus') == 10
-# # assert brain_network.edges_weights_sum('thalamus') == 5
-# # assert brain_network. edges_weights_sum('brain_stem') == 13
-# # neighbors_list = brain_network.get_neighbors('brain_stem')
-# # assert neighbors_list[0].get_label() == 'hypocampus'
-# # assert neighbors_list[1].get_label() == 'thalamus'
-# # assert neighbors_list[2].get_label() == 'amygdala'
-# # assert brain_network.most_connected_path('brain_stem','frontal_lobe') == ['brain_stem' , 'hypocampus', 'frontal_lobe', 15]
-# # assert brain_network.least_connected_path('brain_stem','frontal_lobe') == ['brain_stem', 'thalamus', 'frontal_lobe', 8]
-# #
-#
 test_Graph()
