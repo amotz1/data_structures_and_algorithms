@@ -241,7 +241,7 @@ class Algorithms:
                 paths.append(complete_path)
 
     @staticmethod
-    def shortest_path_length_bf(source, dest):
+    def shortest_path_bf(source, dest):
 
         paths = Algorithms.compute_all_paths(source, dest)
         min_path_length = sys.maxsize
@@ -251,15 +251,17 @@ class Algorithms:
 
             if path == []:
                 min_path_length = path_length
-                return min_path_length
+                min_path = path
+                return min_path_length, min_path
 
             for i, edge in enumerate(path):
                 path_length = path_length + edge.length
 
                 if i == len(path)-1 and min_path_length > path_length:
                     min_path_length = path_length
+                    min_path = path
 
-        return min_path_length
+        return min_path_length, min_path
 
 
 def find_path_vertices(edges_list):

@@ -217,11 +217,12 @@ def test_Graph():
                                                           [haifa_rishon, rishon_eilat],
                                                           [haifa_rishon, rishon_naharia, naharia_eilat]]
 
-    min_path_length = Algorithms.shortest_path_length_bf(haifa, eilat)
+    (min_path_length, min_path) = Algorithms.shortest_path_bf(haifa, eilat)
     assert min_path_length == 14
 
-    min_path_length = Algorithms.shortest_path_length_bf(haifa, haifa)
-    assert min_path_length == 0
+    (shortest_path_length_bf, shortest_path_bf) = Algorithms.shortest_path_bf(haifa, haifa)
+    assert shortest_path_length_bf == 0
+    assert shortest_path_bf == []
 
     paths = []
     Algorithms._compute_all_paths(naharia, eilat, [haifa_naharia], paths)
@@ -234,7 +235,7 @@ def test_Graph():
     eilat = israel_cities.get_vertex('eilat')
 
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, haifa)
-    shortest_path_length_bf = Algorithms.shortest_path_length_bf(haifa, haifa)
+    (shortest_path_length_bf, shortest_path_bf) = Algorithms.shortest_path_bf(haifa, haifa)
     assert shortest_path_length == shortest_path_length_bf
     assert shortest_path_length == 0
     assert is_path(shortest_path, haifa, haifa)
@@ -242,24 +243,27 @@ def test_Graph():
     test_correct_path(shortest_path, correct_edges_attributes)
 
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, rishon)
-    shortest_path_length_bf = Algorithms.shortest_path_length_bf(haifa, rishon)
+    (shortest_path_length_bf, shortest_path_bf) = Algorithms.shortest_path_bf(haifa, rishon)
     assert shortest_path_length == shortest_path_length_bf
+    assert shortest_path == shortest_path_bf
     assert shortest_path_length == 40
     assert is_path(shortest_path, haifa, rishon)
     correct_edges_attributes = [(haifa, rishon, 40)]
     test_correct_path(shortest_path, correct_edges_attributes)
 
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(rishon, haifa)
-    shortest_path_length_bf = Algorithms.shortest_path_length_bf(rishon, haifa)
+    (shortest_path_length_bf, shortest_path_bf) = Algorithms.shortest_path_bf(rishon, haifa)
     assert shortest_path_length == shortest_path_length_bf
+    assert shortest_path_bf == shortest_path
     assert shortest_path_length == 40
     assert is_path(shortest_path, rishon, haifa)
     correct_edges_attributes = [(rishon, haifa, 40)]
     test_correct_path(shortest_path, correct_edges_attributes)
 
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, eilat)
-    shortest_path_length_bf = Algorithms.shortest_path_length_bf(haifa, eilat)
+    (shortest_path_length_bf, shortest_path_bf) = Algorithms.shortest_path_bf(haifa, eilat)
     assert shortest_path_length == shortest_path_length_bf
+    assert shortest_path_bf == shortest_path
     assert shortest_path_length == 90
     assert is_path(shortest_path, haifa, eilat)
     correct_edges_attributes = [(haifa, rishon, 40), (rishon, beer_sheva, 20), (beer_sheva, naharia, 20),
@@ -271,14 +275,14 @@ def test_Graph():
     eilat = israel_cities.get_vertex('eilat')
     petach_tikva = israel_cities.get_vertex('petach_tikva')
     (shortest_path_length, shortest_path) = Algorithms.shortest_path(haifa, eilat)
-    shortest_path_length_bf = Algorithms.shortest_path_length_bf(haifa, eilat)
+    (shortest_path_length_bf, shortest_path_bf) = Algorithms.shortest_path_bf(haifa, eilat)
     assert shortest_path_length == shortest_path_length_bf
+    assert shortest_path_bf == shortest_path
     assert shortest_path_length == 3
     correct_edges_attributes = [(haifa, petach_tikva, 2), (petach_tikva, eilat, 1)]
     test_correct_path(shortest_path, correct_edges_attributes)
     assert is_path(shortest_path, haifa, eilat)
 
-    # TODO making my shortest_path_bf function to return the path also
     # TODO optimizing path_vartices to be a hashtable  for better performance in find_path_vertices function.
     # TODO maybe trying to avoid the find_path_vertices and using lambda instead for lazy evaluation
     # TODO making the reccursion call return a list of paths instead of an output parameter
