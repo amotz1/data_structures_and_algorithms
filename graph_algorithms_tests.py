@@ -298,7 +298,7 @@ def test_Graph():
 
     # TODO optimizing path_vartices to be a hashtable  for better performance in find_path_vertices function.
     # TODO maybe trying to avoid the find_path_vertices and using lambda instead for lazy evaluation
-    # TODO making the reccursion call return a list of paths instead of an output parameter
+    # TODO making the recursion call return a list of paths instead of an output parameter
     # TODO making random graph and comparing shortest_path_bf with shortest_path
 
 test_Graph()
