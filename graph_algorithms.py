@@ -190,6 +190,7 @@ class Algorithms:
             # i also add it as an end of an active path for future exploration.
             for edge in shortest_path_end.get_edges():
                 neighbor = edge.get_other_vertex(shortest_path_end)
+
                 if neighbor not in vertex2path_length:
                     vertex2path_length[neighbor] = vertex2path_length[shortest_path_end] + edge.length
                     # creating a temporary copy of vertex2path[shortest_path_end]
@@ -199,6 +200,7 @@ class Algorithms:
                     vertex2path[neighbor] = copy
                     if neighbor != dest:
                         active_path_ends[neighbor] = 'dummy'
+
                 else:
                     if vertex2path_length[shortest_path_end] + edge.length < vertex2path_length[neighbor]:
                         vertex2path_length[neighbor] = vertex2path_length[shortest_path_end] + edge.length
@@ -207,7 +209,12 @@ class Algorithms:
                         vertex2path[neighbor] = copy
                         if neighbor != dest:
                             active_path_ends[neighbor] = 'dummy'
-        return vertex2path_length[dest], vertex2path[dest]
+
+        # dealing with a case where i didn't find the destination at all.
+        if dest not in vertex2path_length:
+            return sys.maxsize, None
+        else:
+            return vertex2path_length[dest], vertex2path[dest]
 
     @staticmethod
     def compute_all_paths(source, dest):
